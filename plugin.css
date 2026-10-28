@@ -1,0 +1,55 @@
+/* Clariti plugin base — the shared look of Clariti's plain HTML plugins (the Revit panel, the
+   Outlook plugin). No React, no Tailwind.
+
+   Load it after tokens.css and before the plugin's own stylesheet:
+       <link rel="stylesheet" href="tokens.css">
+       <link rel="stylesheet" href="plugin.css">
+       <link rel="stylesheet" href="the-plugin's-own.css">
+
+   It gives every plugin the same type, radii, page and form controls. Each plugin keeps its own
+   components (its buttons, rows, cards and layout) and names these variables instead of
+   restating them, the way it names the palette's roles. Body text size stays the plugin's: set
+   it on body in the plugin's own stylesheet. Writes no colour; every colour is a --c-* role. */
+
+:root {
+  /* A grotesque for words, a mono for facts: labels, codes, values and counts. */
+  --plugin-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --plugin-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace;
+  /* Radii: chips, buttons and inputs; cards and panels; pills. */
+  --plugin-radius-sm: 7px;
+  --plugin-radius: 10px;
+  --plugin-radius-pill: 999px;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--c-page);
+  color: var(--c-ink);
+  font-family: var(--plugin-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Text fields and selects: a hairline frame on the card ground. Focus turns the frame ink with a
+   soft halo of ink. */
+input[type=number], input[type=text], select {
+  font: inherit;
+  padding: 5px 7px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--plugin-radius-sm);
+  background: var(--c-surface);
+  color: var(--c-ink);
+  min-width: 46px;
+}
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--c-ink);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-ink) 9%, transparent);
+}
+
+/* What is chosen is ink, like clariti.site's tabs and switches: the browser's blue never shows. */
+input[type=checkbox], input[type=radio] { accent-color: var(--c-ink); }
+
+/* Keyboard focus on a button: a ring of ink. */
+button:focus-visible { outline: 2px solid var(--c-ink); outline-offset: 2px; }

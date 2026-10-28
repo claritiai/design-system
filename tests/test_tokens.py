@@ -30,25 +30,35 @@ class Palette(unittest.TestCase):
         self.assertEqual(build.main(["--check"]), 0)
 
 
-class Theme(unittest.TestCase):
-    """theme.css names palette roles for Tailwind products and holds no colour of its own."""
-    THEME = (ROOT / "theme.css").read_text(encoding="utf-8")
-    CODE = re.sub(r"/\*.*?\*/", "", THEME, flags=re.S)
+def code(name):
+    return re.sub(r"/\*.*?\*/", "", (ROOT / name).read_text(encoding="utf-8"), flags=re.S)
 
-    def test_names_only_roles_the_palette_declares(self):
+
+class Layers(unittest.TestCase):
+    """theme.css (Tailwind products) and plugin.css (plain HTML plugins) name palette roles and
+    hold no colour of their own."""
+    LAYERS = ("theme.css", "plugin.css")
+
+    def test_name_only_roles_the_palette_declares(self):
         light, dark = build.themes(CSS)
-        named = set(re.findall(r"var\(--c-([\w-]+)\)", self.CODE))
-        self.assertTrue(named)
-        self.assertEqual(sorted(named - set(light)), [])
-        self.assertEqual(sorted(named - set(dark)), [])
+        for layer in self.LAYERS:
+            with self.subTest(layer=layer):
+                named = set(re.findall(r"var\(--c-([\w-]+)\)", code(layer)))
+                self.assertTrue(named)
+                self.assertEqual(sorted(named - set(light)), [])
+                self.assertEqual(sorted(named - set(dark)), [])
 
-    def test_writes_no_colour_value(self):
-        self.assertEqual(re.findall(r"#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?|oklch|oklab)\(", self.CODE), [])
+    def test_write_no_colour_and_no_role(self):
+        for layer in self.LAYERS:
+            with self.subTest(layer=layer):
+                self.assertEqual(re.findall(r"#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?|oklch|oklab)\(", code(layer)), [])
+                self.assertEqual(re.findall(r"(--c-[\w-]+)\s*:", code(layer)), [])
 
-    def test_every_utility_reads_a_declared_variable(self):
-        declared = set(re.findall(r"(--[\w-]+)\s*:", self.CODE))
-        theme = re.search(r"@theme inline \{(.*?)\n\}", self.CODE, flags=re.S).group(1)
-        read = set(re.findall(r"var\((--[\w-]+)\)", theme))
+    def test_every_theme_utility_reads_a_declared_variable(self):
+        theme = code("theme.css")
+        declared = set(re.findall(r"(--[\w-]+)\s*:", theme))
+        block = re.search(r"@theme inline \{(.*?)\n\}", theme, flags=re.S).group(1)
+        read = set(re.findall(r"var\((--[\w-]+)\)", block))
         self.assertEqual(sorted(r for r in read - declared if not r.startswith("--c-")), [])
 
 
