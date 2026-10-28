@@ -16,7 +16,7 @@ Each product names these roles in its own vocabulary and never restates a value.
 | Assumed value the engineer confirms (the orange field) | `--c-warn`, `--c-warn-bg`, `--c-warn-line` |
 | Evidence that does not cover the case: check it, not an alarm | `--c-notcov`, `--c-notcov-bg`, `--c-notcov-line` |
 | Failed check, destructive action | `--c-error`, `--c-error-icon`, `--c-error-bg`, `--c-error-line` |
-| Note, information: says something, asks nothing | `--c-sunken`, `--c-line`, `--c-ink-2`, label in `--c-ink` |
+| Note, information: says something, asks nothing (`text-note`, `bg-note-bg`, `border-note-border`) | `--c-sunken`, `--c-line`, `--c-ink-2`, label in `--c-ink` |
 
 Dark mode is the same roles on a warm near-black. The application and the Revit panel switch it
 with `class="dark"` on `<html>`, the 3D viewers and the Outlook add-in with `data-theme="dark"`.

@@ -86,6 +86,10 @@
   --color-status-warn-border: var(--c-warn-line);
   --color-status-fail-bg: var(--c-error-bg);
   --color-status-fail-border: var(--c-error-line);
+  /* A note: information that asks nothing. Neutral, so it never competes with a status. */
+  --color-note: var(--c-ink-2);
+  --color-note-bg: var(--c-sunken);
+  --color-note-border: var(--c-line);
   /* The brand accent outside AI presence: favourites, eyebrows. Never a status. */
   --color-brand: var(--c-accent);
 
