@@ -16,6 +16,7 @@ Each product names these roles in its own vocabulary and never restates a value.
 | Assumed value the engineer confirms (the orange field) | `--c-warn`, `--c-warn-bg`, `--c-warn-line` |
 | Evidence that does not cover the case: check it, not an alarm | `--c-notcov`, `--c-notcov-bg`, `--c-notcov-line` |
 | Failed check, destructive action | `--c-error`, `--c-error-icon`, `--c-error-bg`, `--c-error-line` |
+| Note, information: says something, asks nothing | `--c-sunken`, `--c-line`, `--c-ink-2`, label in `--c-ink` |
 
 Dark mode is the same roles on a warm near-black. The application and the Revit panel switch it
 with `class="dark"` on `<html>`, the 3D viewers and the Outlook add-in with `data-theme="dark"`.
@@ -24,9 +25,11 @@ with `class="dark"` on `<html>`, the 3D viewers and the Outlook add-in with `dat
 
 - The accent is the brand. It never marks a status, and a status never borrows it.
 - Status is a tinted panel with an icon and text, never colour alone.
+- Information has no hue. A note is neutral, so it never competes with a status; there is no
+  blue role.
 - A product brings no palette of its own. A role Clariti lacks is added to `tokens.css` here,
   for both themes, and then named in each product that uses it.
-- Physical materials and evidence bases in 3D keep their own roles in Clariti's
-  `public/viewer-theme/tokens.css`. They are data, not brand.
+- Physical materials, evidence in the scene and evidence bases have their own roles in
+  [`viewer.css`](../viewer.css). They are data, not brand. [`3d.md`](3d.md) covers 3D views.
 - A role is never renamed or removed while a product still names it. Add the new role, move
   the products over, then remove the old one.

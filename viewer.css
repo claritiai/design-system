@@ -1,0 +1,118 @@
+/* Clariti 3D palette: the colours of every Clariti 3D view. Read it after tokens.css.
+
+   - Canvas and chrome (--viewer-*) and engineering status (--pass, --warn, --fail) name the
+     palette's roles, so they flip with the theme in tokens.css and are never restated here.
+   - Grid, physical materials, evidence in the scene, evidence basis and light are the scene's
+     own roles. They are data, not brand: a material looks like the material, and the brand
+     accent never paints geometry.
+
+   docs/3d.md says what each role means, which states a view has, and how a new view uses them.
+   Light is :root. Dark is the same roles on the warm near-black, switched by `class="dark"`
+   on <html> or `data-theme="dark"`; materials keep their colour in both themes. */
+
+:root {
+  /* canvas and chrome */
+  --viewer-background: var(--c-page);
+  --viewer-panel: var(--c-surface);
+  --viewer-fill: var(--c-muted);
+  --viewer-foreground: var(--c-ink);
+  --viewer-muted: var(--c-ink-3);
+  --viewer-border: var(--c-line);
+  --viewer-accent: var(--c-accent);
+  --viewer-accent-bg: var(--c-accent-tint);
+  --viewer-grid-major: #d8d2c6;
+  --viewer-grid-minor: #e8e3da;
+
+  /* engineering status, in chrome and on the element a check is about */
+  --pass: var(--c-verified);
+  --pass-bg: var(--c-verified-bg);
+  --pass-border: var(--c-verified-line);
+  --warn: var(--c-warn);
+  --warn-bg: var(--c-warn-bg);
+  --warn-border: var(--c-warn-line);
+  --fail: var(--c-error-icon);
+  --fail-bg: var(--c-error-bg);
+  --fail-border: var(--c-error-line);
+
+  /* evidence basis: one muted hue per basis, so it reads as provenance, never as a second
+     rating (certified by one body, by another, an assessment, a named test, guidance, a
+     standard, a datasheet, an unnamed source, unknown) */
+  --basis-ul: #3f6e8c;
+  --basis-ifcc: #3e7a66;
+  --basis-as: #6b5a96;
+  --basis-named: #5f7048;
+  --basis-guidance: #8a6438;
+  --basis-std: #7a7062;
+  --basis-unnamed: #b45309;
+  --basis-datasheet: #96835f;
+  --basis-unknown: #dc2626;
+
+  /* physical materials, opaque: the product and what it is fixed to */
+  --material-concrete: #9aa0a3;
+  --material-aac: #b8bcb6;
+  --material-steel: #7c8894;
+  --material-coverPlate: #c0392b;
+  --material-barrier: #d94f3d;
+  --material-wool: #d9c9a3;
+  --material-woolLD: #e2d4b0;
+  --material-intum: #8e1f14;
+  --material-brick: #bf6b49;
+  --material-timber: #b5854c;
+  --material-board: #d8d5ce;
+  --material-tape: #cfd6dd;
+  --material-coating: #e8e8e4;
+  --material-dpc: #2f3640;
+  --material-alu: #b8bfc6;
+  --material-foam: #e8dfae;
+
+  /* physical materials, translucent context: construction around the product */
+  --material-aacT: #c6d0cc;
+  --material-boardT: #b2b7ba;
+  --material-timberT: #b09a63;
+  --material-steelT: #6b7784;
+  --material-foamT: #c9bf8c;
+  --material-concreteT: #8b9296;
+  --material-woolT: #c9c2ad;
+
+  /* evidence and behaviour in the scene, each with the glow it carries */
+  --material-intumHi: #ff6a45;
+  --material-intumHi-emissive: #d8280c;
+  --material-intumFire: #ff7a1a;
+  --material-intumFire-emissive: #cc4400;
+  --material-violation: #f85149;
+  --material-violation-emissive: #7a1010;
+  --material-untested: #f3c969;
+  --material-untested-emissive: #4a3a10;
+  --material-principle: #e8a33d;
+  --material-principle-emissive: #6b4a08;
+  --material-principleWool: #e3c98f;
+  --material-principleWool-emissive: #4a3a10;
+
+  /* drawing aids */
+  --material-edge: #2a241e;
+  --material-axis: #3d8285;
+  --material-marker: #497dba;
+  --material-section: #4da3ff;
+
+  /* light */
+  --light-sky: #ffffff;
+  --light-ground: #d8cfc2;
+  --light-sun: #fff4e6;
+  --light-section: #fff8ee;
+}
+
+:root.dark,
+:root[data-theme="dark"] {
+  --viewer-grid-major: #2e2e2e;
+  --viewer-grid-minor: #222222;
+  --basis-ul: #7fb0d0;
+  --basis-ifcc: #7fc0a8;
+  --basis-as: #af9dd6;
+  --basis-named: #a8bd8a;
+  --basis-guidance: #cfa06a;
+  --basis-std: #b0a794;
+  --basis-unnamed: #f0c88a;
+  --basis-datasheet: #c9b795;
+  --basis-unknown: #f87171;
+  --material-edge: #a8a29e;
+}

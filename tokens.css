@@ -1,10 +1,9 @@
 /* Clariti colour tokens — the one place a Clariti colour value is written.
 
-   Every Clariti product reads this file from claritiai/design-system main: the application,
-   its 3D viewers and the Outlook add-in through the copy Clariti's build fetches into
-   public/brand/tokens.css, and the Revit panel live from app.clariti.site/brand/tokens.css.
-   Each surface maps its own names onto these roles; none restates a value. Change a colour
-   here, nowhere else.
+   Every Clariti product reads a synced copy of this file: the application, its 3D viewers and
+   the Outlook add-in from public/brand/tokens.css in Clariti, the Revit panel from its bundled
+   clariti-tokens.css. Each surface maps its own names onto these roles; none restates a value.
+   Change a colour here, nowhere else.
 
    Roles:
    - page / surface / sunken / muted: grounds, from the page up to chips and tracks.

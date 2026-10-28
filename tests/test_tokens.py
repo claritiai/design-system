@@ -62,6 +62,43 @@ class Layers(unittest.TestCase):
         self.assertEqual(sorted(r for r in read - declared if not r.startswith("--c-")), [])
 
 
+class Viewer(unittest.TestCase):
+    """viewer.css: chrome and status name palette roles; the scene's own roles are colours, and
+    none of them is the brand accent, which never paints geometry."""
+    ALIASED = ("--viewer-background", "--viewer-panel", "--viewer-fill", "--viewer-foreground",
+               "--viewer-muted", "--viewer-border", "--viewer-accent", "--viewer-accent-bg",
+               "--pass", "--pass-bg", "--pass-border", "--warn", "--warn-bg", "--warn-border",
+               "--fail", "--fail-bg", "--fail-border")
+
+    def setUp(self):
+        blocks = build.blocks((ROOT / "viewer.css").read_text(encoding="utf-8"))
+        self.light = blocks[":root"]
+        self.dark = next(v for k, v in blocks.items() if "dark" in k)
+
+    def test_dark_overrides_only_roles_light_declares(self):
+        self.assertEqual(sorted(set(self.dark) - set(self.light)), [])
+
+    def test_chrome_and_status_name_palette_roles(self):
+        light, _ = build.themes(CSS)
+        for role in self.ALIASED:
+            with self.subTest(role=role):
+                match = re.fullmatch(r"var\(--c-([\w-]+)\)", self.light[role])
+                self.assertIsNotNone(match)
+                self.assertIn(match.group(1), light)
+                self.assertNotIn(role, self.dark)
+
+    def test_scene_roles_are_colours_and_never_the_accent(self):
+        light, dark = build.themes(CSS)
+        accents = {light["accent"], dark["accent"]}
+        for theme in (self.light, self.dark):
+            for role, value in theme.items():
+                if role in self.ALIASED:
+                    continue
+                with self.subTest(role=role):
+                    self.assertRegex(value, COLOUR)
+                    self.assertNotIn(value, accents)
+
+
 class Brand(unittest.TestCase):
     def test_every_asset_is_an_svg(self):
         assets = sorted((ROOT / "brand").glob("*"))
