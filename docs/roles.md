@@ -1,0 +1,32 @@
+# Colour roles
+
+Every Clariti colour is written once, in [`tokens.css`](../tokens.css), for light and dark.
+Each product names these roles in its own vocabulary and never restates a value.
+
+| Meaning | Role |
+| --- | --- |
+| Page, then card and popover | `--c-page`, `--c-surface` |
+| Quiet fill, chip, hover, track | `--c-muted`, `--c-sunken` |
+| Hairline, then inputs and frames | `--c-line`, `--c-line-strong` |
+| Text, body, then labels (`ink-3` is the lightest small text may use) | `--c-ink`, `--c-ink-2`, `--c-ink-3` |
+| Text on an ink or accent fill | `--c-on-ink`, `--c-on-accent` |
+| Brand: the mark, AI at work, an AI-set value, eyebrow, favourite | `--c-accent`, `--c-accent-tint`, `--c-accent-line` |
+| Passed check | `--c-verified`, `--c-verified-icon`, `--c-verified-bg`, `--c-verified-line` |
+| Check this: warning, tip, draft, alert | `--c-warn`, `--c-warn-bg`, `--c-warn-line` |
+| Assumed value the engineer confirms (the orange field) | `--c-warn`, `--c-warn-bg`, `--c-warn-line` |
+| Evidence that does not cover the case: check it, not an alarm | `--c-notcov`, `--c-notcov-bg`, `--c-notcov-line` |
+| Failed check, destructive action | `--c-error`, `--c-error-icon`, `--c-error-bg`, `--c-error-line` |
+
+Dark mode is the same roles on a warm near-black. The application and the Revit panel switch it
+with `class="dark"` on `<html>`, the 3D viewers and the Outlook add-in with `data-theme="dark"`.
+
+## Rules
+
+- The accent is the brand. It never marks a status, and a status never borrows it.
+- Status is a tinted panel with an icon and text, never colour alone.
+- A product brings no palette of its own. A role Clariti lacks is added to `tokens.css` here,
+  for both themes, and then named in each product that uses it.
+- Physical materials and evidence bases in 3D keep their own roles in Clariti's
+  `public/viewer-theme/tokens.css`. They are data, not brand.
+- A role is never renamed or removed while a product still names it. Add the new role, move
+  the products over, then remove the old one.
