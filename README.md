@@ -17,19 +17,15 @@ that renders them.
 | [`docs/roles.md`](docs/roles.md) | Which role means what, and the rules for using them. |
 | [`docs/3d.md`](docs/3d.md) | How a Clariti 3D view looks and behaves: colours, states, chrome, interaction and stills. |
 
-## Products sync from main
+## How products read it
 
-Each product keeps a committed copy of the files it uses and refreshes it with one command. A
-change merged here reaches a product when that product syncs and ships; nothing is fetched at
-build or load time.
+Nothing from here is committed into a product. Each product reads it at install or build time and
+records which commit it took.
 
-| Product | Copies | Command | A change ships |
-| --- | --- | --- | --- |
-| Clariti application, its 3D viewers and its Outlook add-in | `tokens.css`, `viewer.css`, `plugin.css` and `brand/` into `public/brand/`; `theme.css`, `controls.css` and `tokens.json` into `src/design-system/` | `npm run sync:design-system` in `claritiai/clariti` | with the next deploy after the synced copy is committed |
-| Revit panel (`claritiai/revit-plugin`) | `tokens.css` and `plugin.css` into `frontend/v3-coord/` | `python3 tools/sync_clariti_tokens.py` | with the next plugin release |
-
-Each sync stamps its copies with the commit they came from, and stops if `main` lacks a name the
-product uses.
+| Product | Reads it | A change ships |
+| --- | --- | --- |
+| Clariti application, its 3D viewers and its Outlook add-in | An npm dependency installed from this repository (`"@clariti/design-system": "github:claritiai/design-system"`). Stylesheets import it from `node_modules`; the build copies the served files (`tokens.css`, `viewer.css`, `plugin.css`, `brand/`) into `public/brand/`, which is not committed. The lockfile records the commit, `npm update @clariti/design-system` takes `main`, and the build warns while it is behind. | with the next deploy after the update is merged |
+| Revit panel (`claritiai/revit-plugin`) | Fetched from `main` when a release is built (`tools/make_release.py`), and by `tools/sync_clariti_tokens.py` for development and tests. Not committed. | with the next plugin release |
 
 ## Add a product
 
@@ -38,13 +34,13 @@ Pick the row that matches how the product renders.
 | The product is | It reads |
 | --- | --- |
 | A page inside the Clariti application | Nothing extra: it uses Clariti's components and utilities, which already read this repository. |
-| A separate Tailwind 4 app | Sync `tokens.css`, `theme.css` and `controls.css` like Clariti does, then `@import` them after `tailwindcss`. Its components then use the same utility names as Clariti's. |
-| A plain HTML plugin or page, no React or Tailwind | Bundle synced copies of `tokens.css` and `plugin.css` (and `controls.css` once it has a slider or check box), then the plugin's own stylesheet. That stylesheet keeps the plugin's own components and names the `--c-*` roles and `--plugin-*` variables. Take the logos from a synced copy of `brand/`. The Revit panel's `index.html` shows the order. |
+| A separate Tailwind 4 app | Install it like Clariti does, then `@import` `tokens.css`, `theme.css` and `controls.css` from the package after `tailwindcss`. Its components then use the same utility names as Clariti's. |
+| A plain HTML plugin or page, no React or Tailwind | Fetch `tokens.css` and `plugin.css` (and `controls.css` once it has a slider or check box) when the plugin is built and bundle them, then the plugin's own stylesheet. That stylesheet keeps the plugin's own components and names the `--c-*` roles and `--plugin-*` variables. Take the logos from `brand/` the same way. The Revit panel's `index.html` shows the order. |
 | A 3D view | `tokens.css`, then `viewer.css`, and [`docs/3d.md`](docs/3d.md) for how the view behaves. Inside Clariti, the shared viewer theme already loads both. |
-| A document or a script (PDF, email, Python) | `dist/tokens.json`, synced the same way. |
+| A document or a script (PDF, email, Python) | `dist/tokens.json`, from the installed package or fetched at build. |
 
 Whichever row applies, the product brings no palette of its own: a role it lacks is added here
-first ([`docs/roles.md`](docs/roles.md)). The repository is public, so syncing needs no token.
+first ([`docs/roles.md`](docs/roles.md)). The repository is public, so installing or fetching it needs no token.
 
 ## What belongs here
 

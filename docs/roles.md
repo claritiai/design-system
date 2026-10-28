@@ -10,6 +10,8 @@ Each product names these roles in its own vocabulary and never restates a value.
 | Hairline, then inputs and frames | `--c-line`, `--c-line-strong` |
 | Text, body, then labels (`ink-3` is the lightest small text may use) | `--c-ink`, `--c-ink-2`, `--c-ink-3` |
 | Text on an ink or accent fill | `--c-on-ink`, `--c-on-accent` |
+| Primary action: the main button, a selected segment (ink, off-white in dark) | `--c-ink` with `--c-on-ink` |
+| Elevation: the one shadow colour, used by `shadow-hairline`, `shadow-raised`, `shadow-overlay` | `--c-shadow` |
 | Brand: the mark, AI at work (spark, generating, the AI-changes note), eyebrow, favourite | `--c-accent`, `--c-accent-tint`, `--c-accent-line` |
 | Passed check | `--c-verified`, `--c-verified-icon`, `--c-verified-bg`, `--c-verified-line` |
 | Check this: warning, tip, draft, alert | `--c-warn`, `--c-warn-bg`, `--c-warn-line` |

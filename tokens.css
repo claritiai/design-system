@@ -13,6 +13,7 @@
    - verified / warn / error: engineering status. warn is also the orange field, a value the
      engine assumed that the engineer confirms.
    - notcov: evidence that does not cover the case. Check it, not an alarm.
+   - shadow: the one shadow colour, faint ink in light and deep black in dark (theme.css elevation).
 
    Light is :root. Dark is the same roles on a warm near-black, switched by `class="dark"`
    on <html> (application, Revit panel) or `data-theme="dark"` (viewers, add-in). */
@@ -48,6 +49,8 @@
   --c-error-icon: #b91c1c;
   --c-error-bg: #fef2f2;
   --c-error-line: rgba(185, 28, 28, .35);
+
+  --c-shadow: rgba(28, 25, 23, .08);
 }
 
 :root.dark,
@@ -83,4 +86,6 @@
   --c-error-icon: #f87171;
   --c-error-bg: rgba(248, 113, 113, .08);
   --c-error-line: rgba(248, 113, 113, .40);
+
+  --c-shadow: rgba(0, 0, 0, .45);
 }

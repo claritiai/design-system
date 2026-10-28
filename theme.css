@@ -32,6 +32,12 @@
   --destructive: var(--c-error-icon);
   --border: var(--c-line);
   --input: var(--c-line);
+  /* The primary action is ink (off-white in dark), as in the redesign; focus rings are ink-3. */
+  --primary: var(--c-ink);
+  --primary-foreground: var(--c-on-ink);
+  --ring: var(--c-ink-3);
+  --success: var(--c-verified-icon);
+  --success-foreground: var(--c-on-ink);
 
   /* AI presence = the brand accent: spark icon, AI-set value, change chip, running state.
      Never decoration, never a status. */
@@ -69,6 +75,11 @@
   --color-destructive: var(--destructive);
   --color-border: var(--border);
   --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
 
   --color-ai-accent: var(--ai-accent);
   --color-ai-accent-tint: var(--ai-accent-tint);
@@ -102,4 +113,16 @@
   --radius-tight: 6px;
   --radius-control: 10px;
   --radius-surface: 16px;
+
+  /* Elevation, in three steps and one shadow colour (darker in dark mode): hairline = a card lifted
+     off the page; raised = menus, popovers, floating pills; overlay = dialogs and sheets. */
+  --shadow-hairline: 0 1px 2px var(--c-shadow);
+  --shadow-raised: 0 4px 12px var(--c-shadow);
+  --shadow-overlay: 0 12px 32px var(--c-shadow);
+
+  /* Type, as in the redesign: a grotesque for words, a mono for facts (values, codes, clauses).
+     A product loads IBM Plex Mono (400, 500, 600) and names it --font-plex-mono, or relies on an
+     installed copy; Helvetica Neue is the system face. */
+  --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: var(--font-plex-mono, "IBM Plex Mono"), ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace;
 }

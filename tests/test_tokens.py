@@ -99,6 +99,32 @@ class Viewer(unittest.TestCase):
                     self.assertNotIn(value, accents)
 
 
+class Type(unittest.TestCase):
+    """One pair of faces everywhere: the Tailwind theme and the plugin base name the same families."""
+
+    @staticmethod
+    def families(css, name):
+        value = re.search(r"%s:\s*([^;]+);" % re.escape(name), code(css)).group(1)
+        value = re.sub(r"var\(--[\w-]+,\s*([^)]+)\)", r"\1", value)
+        return [f.strip().strip('"') for f in value.split(",")]
+
+    def test_theme_and_plugins_share_the_faces(self):
+        self.assertEqual(self.families("theme.css", "--font-sans"), self.families("plugin.css", "--plugin-sans"))
+        self.assertEqual(self.families("theme.css", "--font-mono"), self.families("plugin.css", "--plugin-mono"))
+        self.assertEqual(self.families("theme.css", "--font-sans")[0], "Helvetica Neue")
+        self.assertEqual(self.families("theme.css", "--font-mono")[0], "IBM Plex Mono")
+
+
+class Package(unittest.TestCase):
+    """Products install this repository as @clariti/design-system: every file they read is shipped."""
+
+    def test_package_ships_every_product_file(self):
+        import json
+        files = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))["files"]
+        for name in ("tokens.css", "theme.css", "controls.css", "viewer.css", "plugin.css", "brand/", "dist/"):
+            self.assertIn(name, files)
+
+
 class Brand(unittest.TestCase):
     def test_every_asset_is_an_svg(self):
         assets = sorted((ROOT / "brand").glob("*"))

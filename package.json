@@ -1,0 +1,17 @@
+{
+  "name": "@clariti/design-system",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Clariti's colour palette, Tailwind theme, form controls, 3D palette, plugin base and brand assets.",
+  "license": "UNLICENSED",
+  "repository": "github:claritiai/design-system",
+  "files": [
+    "tokens.css",
+    "theme.css",
+    "controls.css",
+    "viewer.css",
+    "plugin.css",
+    "brand/",
+    "dist/"
+  ]
+}
