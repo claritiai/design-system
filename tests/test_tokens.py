@@ -30,6 +30,28 @@ class Palette(unittest.TestCase):
         self.assertEqual(build.main(["--check"]), 0)
 
 
+class Theme(unittest.TestCase):
+    """theme.css names palette roles for Tailwind products and holds no colour of its own."""
+    THEME = (ROOT / "theme.css").read_text(encoding="utf-8")
+    CODE = re.sub(r"/\*.*?\*/", "", THEME, flags=re.S)
+
+    def test_names_only_roles_the_palette_declares(self):
+        light, dark = build.themes(CSS)
+        named = set(re.findall(r"var\(--c-([\w-]+)\)", self.CODE))
+        self.assertTrue(named)
+        self.assertEqual(sorted(named - set(light)), [])
+        self.assertEqual(sorted(named - set(dark)), [])
+
+    def test_writes_no_colour_value(self):
+        self.assertEqual(re.findall(r"#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?|oklch|oklab)\(", self.CODE), [])
+
+    def test_every_utility_reads_a_declared_variable(self):
+        declared = set(re.findall(r"(--[\w-]+)\s*:", self.CODE))
+        theme = re.search(r"@theme inline \{(.*?)\n\}", self.CODE, flags=re.S).group(1)
+        read = set(re.findall(r"var\((--[\w-]+)\)", theme))
+        self.assertEqual(sorted(r for r in read - declared if not r.startswith("--c-")), [])
+
+
 class Brand(unittest.TestCase):
     def test_every_asset_is_an_svg(self):
         assets = sorted((ROOT / "brand").glob("*"))

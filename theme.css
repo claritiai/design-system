@@ -1,0 +1,101 @@
+/* Clariti theme — the names Clariti's components are written against, for any Tailwind 4 product.
+
+   Import it after Tailwind and the palette:
+       @import "tailwindcss";
+       @import "<design-system>/tokens.css";
+       @import "<design-system>/theme.css";
+
+   It names the palette's roles (tokens.css) in shadcn's vocabulary, as CSS variables (--background,
+   --card, --status-warn, ...) and as Tailwind utilities (bg-card, text-status-warn, rounded-control,
+   ...), so a component written in one product looks the same in another. It holds no colour of its
+   own: every colour is a var(--c-*) role and flips with the palette's dark theme. A product adds its
+   own local roles after it; it never gives one of these a value. Plain HTML pages (the Revit and
+   Outlook plugins) do not need this file: they read tokens.css directly. */
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --radius: 0.625rem;
+
+  --background: var(--c-page);
+  --foreground: var(--c-ink);
+  --card: var(--c-surface);
+  --card-foreground: var(--c-ink);
+  --popover: var(--c-surface);
+  --popover-foreground: var(--c-ink);
+  --secondary: var(--c-muted);
+  --secondary-foreground: var(--c-ink);
+  --muted: var(--c-muted);
+  --muted-foreground: var(--c-ink-3);
+  --accent: var(--c-sunken);
+  --accent-foreground: var(--c-ink);
+  --destructive: var(--c-error-icon);
+  --border: var(--c-line);
+  --input: var(--c-line);
+
+  /* AI presence = the brand accent: spark icon, AI-set value, change chip, running state.
+     Never decoration, never a status. */
+  --ai-accent: var(--c-accent);
+  --ai-accent-tint: var(--c-accent-line);
+  --ai-accent-bg: var(--c-accent-tint);
+  /* The orange field: a value the engine assumed that the engineer confirms. */
+  --assumed: var(--c-warn);
+  --assumed-bg: var(--c-warn-bg);
+  --assumed-border: var(--c-warn-line);
+  /* Status. warn is the same amber as an assumed value: both mean "check this". */
+  --status-pass: var(--c-verified);
+  --status-warn: var(--c-warn);
+  --status-fail: var(--c-error-icon);
+}
+
+:root.dark,
+:root[data-theme="dark"] {
+  --accent: var(--c-muted); /* a hover lifts above the card in dark, not below it */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+
+  --color-ai-accent: var(--ai-accent);
+  --color-ai-accent-tint: var(--ai-accent-tint);
+  --color-ai-accent-bg: var(--ai-accent-bg);
+  --color-assumed: var(--assumed);
+  --color-assumed-bg: var(--assumed-bg);
+  --color-assumed-border: var(--assumed-border);
+  --color-status-pass: var(--status-pass);
+  --color-status-warn: var(--status-warn);
+  --color-status-fail: var(--status-fail);
+  /* Status panels and chips: a tinted ground, a hairline, the status as text. */
+  --color-status-pass-bg: var(--c-verified-bg);
+  --color-status-pass-border: var(--c-verified-line);
+  --color-status-warn-bg: var(--c-warn-bg);
+  --color-status-warn-border: var(--c-warn-line);
+  --color-status-fail-bg: var(--c-error-bg);
+  --color-status-fail-border: var(--c-error-line);
+  /* The brand accent outside AI presence: favourites, eyebrows. Never a status. */
+  --color-brand: var(--c-accent);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  /* Three steps: tight = chips, dots, inputs inside cards; control = buttons, inputs, cards;
+     surface = panels, modals, page-level surfaces. */
+  --radius-tight: 6px;
+  --radius-control: 10px;
+  --radius-surface: 16px;
+}
