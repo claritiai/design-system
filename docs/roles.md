@@ -10,10 +10,10 @@ Each product names these roles in its own vocabulary and never restates a value.
 | Hairline, then inputs and frames | `--c-line`, `--c-line-strong` |
 | Text, body, then labels (`ink-3` is the lightest small text may use) | `--c-ink`, `--c-ink-2`, `--c-ink-3` |
 | Text on an ink or accent fill | `--c-on-ink`, `--c-on-accent` |
-| Brand: the mark, AI at work, an AI-set value, eyebrow, favourite | `--c-accent`, `--c-accent-tint`, `--c-accent-line` |
+| Brand: the mark, AI at work (spark, generating, the AI-changes note), eyebrow, favourite | `--c-accent`, `--c-accent-tint`, `--c-accent-line` |
 | Passed check | `--c-verified`, `--c-verified-icon`, `--c-verified-bg`, `--c-verified-line` |
 | Check this: warning, tip, draft, alert | `--c-warn`, `--c-warn-bg`, `--c-warn-line` |
-| Assumed value the engineer confirms (the orange field) | `--c-warn`, `--c-warn-bg`, `--c-warn-line` |
+| Assumed value the engineer confirms (the orange field), and the count of values to review | `--c-warn`, `--c-warn-bg`, `--c-warn-line` |
 | Evidence that does not cover the case: check it, not an alarm | `--c-notcov`, `--c-notcov-bg`, `--c-notcov-line` |
 | Failed check, destructive action | `--c-error`, `--c-error-icon`, `--c-error-bg`, `--c-error-line` |
 | Note, information: says something, asks nothing (`text-note`, `bg-note-bg`, `border-note-border`) | `--c-sunken`, `--c-line`, `--c-ink-2`, label in `--c-ink` |
