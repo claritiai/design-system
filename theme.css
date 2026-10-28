@@ -9,8 +9,8 @@
    --card, --status-warn, ...) and as Tailwind utilities (bg-card, text-status-warn, rounded-control,
    ...), so a component written in one product looks the same in another. It holds no colour of its
    own: every colour is a var(--c-*) role and flips with the palette's dark theme. A product adds its
-   own local roles after it; it never gives one of these a value. Plain HTML pages (the Revit and
-   Outlook plugins) do not need this file: they read tokens.css directly. */
+   own local roles after it; it never gives one of these a value. Plain HTML pages and plugins do
+   not need this file: they read tokens.css and plugin.css. */
 
 @custom-variant dark (&:is(.dark *));
 

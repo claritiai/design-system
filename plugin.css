@@ -1,5 +1,5 @@
-/* Clariti plugin base — the shared look of Clariti's plain HTML plugins (the Revit panel, the
-   Outlook plugin). No React, no Tailwind.
+/* Clariti plugin base — the shared look of Clariti's plain HTML pages and plugins, such as the
+   Revit panel. No React, no Tailwind.
 
    Load it after tokens.css and before the plugin's own stylesheet:
        <link rel="stylesheet" href="tokens.css">
