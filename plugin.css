@@ -12,7 +12,8 @@
    it on body in the plugin's own stylesheet. Writes no colour; every colour is a --c-* role. */
 
 :root {
-  /* A grotesque for words, a mono for facts: labels, codes, values and counts. */
+  /* A grotesque for words, a mono for facts: labels, codes, values and counts. Load fonts.css
+     before this file to serve the mono from the plugin itself. */
   --plugin-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
   --plugin-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace;
   /* Radii: chips, buttons and inputs; cards and panels; pills. */

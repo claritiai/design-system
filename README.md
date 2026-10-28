@@ -12,6 +12,7 @@ that renders them.
 | [`viewer.css`](viewer.css) | For 3D views: the canvas and its chrome, engineering status in the scene, physical materials, evidence in the scene, evidence basis and light. Read after `tokens.css`. |
 | [`controls.css`](controls.css) | The form controls every product shares: the range slider (thin track, mid-grey fill, hollow thumb) and the check box, both in ink-3. Plain CSS on the palette roles, in the base layer. |
 | [`plugin.css`](plugin.css) | For plain HTML pages and plugins, such as the Revit panel: the shared fonts, radii, page, text fields and focus. Each plugin keeps its own buttons and components and names these variables (`--plugin-sans`, `--plugin-mono`, `--plugin-radius-sm`, ...). No colour of its own. |
+| [`fonts.css`](fonts.css), [`fonts/`](fonts) | IBM Plex Mono, the mono face, in 400, 500 and 600, for each product to serve itself (no font service). Helvetica Neue, the face for words, is the system's. SIL Open Font License 1.1. |
 | [`brand/`](brand) | The Clariti lockups (ink, paper), the mark (ink, paper) and the favicon. |
 | [`dist/tokens.json`](dist/tokens.json) | The palette as JSON, for code that cannot read CSS (PDF generators, Python). Generated. |
 | [`docs/roles.md`](docs/roles.md) | Which role means what, and the rules for using them. |
@@ -24,8 +25,8 @@ records which commit it took.
 
 | Product | Reads it | A change ships |
 | --- | --- | --- |
-| Clariti application, its 3D viewers and its Outlook add-in | An npm dependency installed from this repository (`"@clariti/design-system": "github:claritiai/design-system"`). Stylesheets import it from `node_modules`; the build copies the served files (`tokens.css`, `viewer.css`, `plugin.css`, `brand/`) into `public/brand/`, which is not committed. The lockfile records the commit, `npm update @clariti/design-system` takes `main`, and the build warns while it is behind. | with the next deploy after the update is merged |
-| Revit panel (`claritiai/revit-plugin`) | Fetched from `main` when a release is built (`tools/make_release.py`), and by `tools/sync_clariti_tokens.py` for development and tests. Not committed. | with the next plugin release |
+| Clariti application, its 3D viewers and its Outlook add-in | An npm dependency installed from this repository (`"@clariti/design-system": "github:claritiai/design-system"`). Stylesheets import it from `node_modules`; the build copies the served files (`tokens.css`, `viewer.css`, `plugin.css`, `fonts.css`, `fonts/`, `brand/`) into `public/brand/`, which is not committed, and the app loads `fonts/` with its font loader. The lockfile records the commit, `npm update @clariti/design-system` takes `main`, and the build warns while it is behind. | with the next deploy after the update is merged |
+| Revit panel (`claritiai/revit-plugin`) | `tokens.css`, `plugin.css`, `controls.css`, `fonts.css` and `fonts/`, fetched from `main` when a release is built (`tools/make_release.py`), and by `tools/sync_clariti_tokens.py` for development and tests. Not committed. | with the next plugin release |
 
 ## Add a product
 
@@ -34,8 +35,8 @@ Pick the row that matches how the product renders.
 | The product is | It reads |
 | --- | --- |
 | A page inside the Clariti application | Nothing extra: it uses Clariti's components and utilities, which already read this repository. |
-| A separate Tailwind 4 app | Install it like Clariti does, then `@import` `tokens.css`, `theme.css` and `controls.css` from the package after `tailwindcss`. Its components then use the same utility names as Clariti's. |
-| A plain HTML plugin or page, no React or Tailwind | Fetch `tokens.css` and `plugin.css` (and `controls.css` once it has a slider or check box) when the plugin is built and bundle them, then the plugin's own stylesheet. That stylesheet keeps the plugin's own components and names the `--c-*` roles and `--plugin-*` variables. Take the logos from `brand/` the same way. The Revit panel's `index.html` shows the order. |
+| A separate Tailwind 4 app | Install it like Clariti does, then `@import` `tokens.css`, `theme.css` and `controls.css` from the package after `tailwindcss`, and load `fonts/` with the framework's font loader as `--font-plex-mono` (or serve `fonts.css`). Its components then use the same utility names as Clariti's. |
+| A plain HTML plugin or page, no React or Tailwind | Fetch `tokens.css`, `plugin.css` and `fonts.css` with its `fonts/` folder (and `controls.css` once it has a slider or check box) when the plugin is built and bundle them, then the plugin's own stylesheet. That stylesheet keeps the plugin's own components and names the `--c-*` roles and `--plugin-*` variables. Take the logos from `brand/` the same way. The Revit panel's `index.html` shows the order. |
 | A 3D view | `tokens.css`, then `viewer.css`, and [`docs/3d.md`](docs/3d.md) for how the view behaves. Inside Clariti, the shared viewer theme already loads both. |
 | A document or a script (PDF, email, Python) | `dist/tokens.json`, from the installed package or fetched at build. |
 

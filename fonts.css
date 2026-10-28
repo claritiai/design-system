@@ -1,0 +1,26 @@
+/* IBM Plex Mono, the mono face for facts (values, codes, clauses, counts), in the weights Clariti
+   uses: 400, 500, 600, Latin. Each product serves these files itself, so no page asks a font
+   service: keep the fonts/ folder beside this file, or rewrite the urls to where it is served.
+   Helvetica Neue, the face for words, is the system's own and needs no file.
+   Licence: SIL Open Font License 1.1, fonts/OFL.txt. Files from Fontsource 5.3.0. */
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("fonts/ibm-plex-mono-latin-600-normal.woff2") format("woff2");
+}

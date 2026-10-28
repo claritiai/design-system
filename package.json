@@ -11,6 +11,8 @@
     "controls.css",
     "viewer.css",
     "plugin.css",
+    "fonts.css",
+    "fonts/",
     "brand/",
     "dist/"
   ]

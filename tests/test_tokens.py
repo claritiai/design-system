@@ -115,13 +115,30 @@ class Type(unittest.TestCase):
         self.assertEqual(self.families("theme.css", "--font-mono")[0], "IBM Plex Mono")
 
 
+class Fonts(unittest.TestCase):
+    """fonts.css serves the mono face the theme and the plugin base name, from files beside it."""
+
+    def test_every_face_is_a_shipped_file_of_the_named_family(self):
+        css = code("fonts.css")
+        faces = re.findall(r"@font-face\s*\{([^}]*)\}", css)
+        self.assertEqual(sorted(re.search(r"font-weight:\s*(\d+)", f).group(1) for f in faces), ["400", "500", "600"])
+        mono = Type.families("theme.css", "--font-mono")[0]
+        for face in faces:
+            with self.subTest(face=face):
+                self.assertEqual(re.search(r'font-family:\s*"([^"]+)"', face).group(1), mono)
+                url = re.search(r'url\("([^"]+)"\)', face).group(1)
+                self.assertTrue((ROOT / url).is_file(), url)
+        self.assertTrue((ROOT / "fonts" / "OFL.txt").is_file())
+
+
 class Package(unittest.TestCase):
     """Products install this repository as @clariti/design-system: every file they read is shipped."""
 
     def test_package_ships_every_product_file(self):
         import json
         files = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))["files"]
-        for name in ("tokens.css", "theme.css", "controls.css", "viewer.css", "plugin.css", "brand/", "dist/"):
+        for name in ("tokens.css", "theme.css", "controls.css", "viewer.css", "plugin.css", "fonts.css", "fonts/",
+                     "brand/", "dist/"):
             self.assertIn(name, files)
 
 

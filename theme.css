@@ -132,8 +132,8 @@
   --shadow-2xl: 0 12px 32px var(--c-shadow);
 
   /* Type, as in the redesign: a grotesque for words, a mono for facts (values, codes, clauses).
-     A product loads IBM Plex Mono (400, 500, 600) and names it --font-plex-mono, or relies on an
-     installed copy; Helvetica Neue is the system face. */
+     A product loads fonts/ (IBM Plex Mono 400, 500, 600) with its font loader and names it
+     --font-plex-mono, or serves fonts.css; Helvetica Neue is the system face. */
   --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-mono: var(--font-plex-mono, "IBM Plex Mono"), ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace;
 }
