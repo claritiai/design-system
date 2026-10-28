@@ -3,7 +3,7 @@
 
    Quiet by design: a thin track, a mid-grey fill and a hollow thumb, so nothing sits in pure ink
    or pure paper and the value the field shows stays the loudest thing on the row. Check boxes and
-   radios wear ink-2, not ink. Everything is in the base layer, so a product's own utilities can
+   radios wear the same ink-3 as the slider's fill and thumb. Everything is in the base layer, so a product's own utilities can
    still set size and spacing.
 
    A slider shows how far it is filled from `--range-fill` (0% to 100%), which the product sets
@@ -77,9 +77,10 @@
     opacity: 0.5;
   }
 
-  /* What is chosen is a soft ink, so a ticked box never glares; the browser's blue never shows. */
+  /* What is chosen wears the slider's ink-3, so a ticked box never glares or reads black; the
+     browser's blue never shows. */
   input[type="checkbox"],
   input[type="radio"] {
-    accent-color: var(--c-ink-2);
+    accent-color: var(--c-ink-3);
   }
 }
