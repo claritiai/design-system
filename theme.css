@@ -101,6 +101,8 @@
   --color-note: var(--c-ink-2);
   --color-note-bg: var(--c-sunken);
   --color-note-border: var(--c-line);
+  /* The veil behind a dialog, a sheet or a drawer. */
+  --color-scrim: var(--c-scrim);
   /* The brand accent outside AI presence: favourites, eyebrows. Never a status. */
   --color-brand: var(--c-accent);
 
@@ -119,6 +121,15 @@
   --shadow-hairline: 0 1px 2px var(--c-shadow);
   --shadow-raised: 0 4px 12px var(--c-shadow);
   --shadow-overlay: 0 12px 32px var(--c-shadow);
+  /* Tailwind's own shadow sizes land on the same three steps, so a component that writes
+     shadow-sm or shadow-lg still casts the shared shadow. */
+  --shadow-2xs: 0 1px 2px var(--c-shadow);
+  --shadow-xs: 0 1px 2px var(--c-shadow);
+  --shadow-sm: 0 1px 2px var(--c-shadow);
+  --shadow-md: 0 4px 12px var(--c-shadow);
+  --shadow-lg: 0 4px 12px var(--c-shadow);
+  --shadow-xl: 0 12px 32px var(--c-shadow);
+  --shadow-2xl: 0 12px 32px var(--c-shadow);
 
   /* Type, as in the redesign: a grotesque for words, a mono for facts (values, codes, clauses).
      A product loads IBM Plex Mono (400, 500, 600) and names it --font-plex-mono, or relies on an
