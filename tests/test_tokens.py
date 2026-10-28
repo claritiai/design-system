@@ -35,9 +35,9 @@ def code(name):
 
 
 class Layers(unittest.TestCase):
-    """theme.css (Tailwind products) and plugin.css (plain HTML plugins) name palette roles and
-    hold no colour of their own."""
-    LAYERS = ("theme.css", "plugin.css")
+    """theme.css (Tailwind products), plugin.css (plain HTML plugins) and controls.css (shared form
+    controls) name palette roles and hold no colour of their own."""
+    LAYERS = ("theme.css", "plugin.css", "controls.css")
 
     def test_name_only_roles_the_palette_declares(self):
         light, dark = build.themes(CSS)

@@ -10,6 +10,7 @@ that renders them.
 | [`tokens.css`](tokens.css) | The palette: every `--c-*` role, light and dark. Plain CSS that any page can read. |
 | [`theme.css`](theme.css) | For Tailwind 4 products: the palette under the names Clariti's components are written against (`bg-card`, `text-status-warn`, `text-ai-accent`, `rounded-control`, ...). No colour of its own. |
 | [`viewer.css`](viewer.css) | For 3D views: the canvas and its chrome, engineering status in the scene, physical materials, evidence in the scene, evidence basis and light. Read after `tokens.css`. |
+| [`controls.css`](controls.css) | The form controls every product shares: the range slider (thin track, mid-grey fill, hollow thumb) and the check box. Plain CSS on the palette roles, in the base layer. |
 | [`plugin.css`](plugin.css) | For plain HTML pages and plugins, such as the Revit panel: the shared fonts, radii, page, text fields and focus. Each plugin keeps its own buttons and components and names these variables (`--plugin-sans`, `--plugin-mono`, `--plugin-radius-sm`, ...). No colour of its own. |
 | [`brand/`](brand) | The Clariti lockups (ink, paper), the mark (ink, paper) and the favicon. |
 | [`dist/tokens.json`](dist/tokens.json) | The palette as JSON, for code that cannot read CSS (PDF generators, Python). Generated. |
@@ -24,7 +25,7 @@ build or load time.
 
 | Product | Copies | Command | A change ships |
 | --- | --- | --- | --- |
-| Clariti application, its 3D viewers and its Outlook add-in | `tokens.css`, `viewer.css`, `plugin.css` and `brand/` into `public/brand/`; `theme.css` and `tokens.json` into `src/design-system/` | `npm run sync:design-system` in `claritiai/clariti` | with the next deploy after the synced copy is committed |
+| Clariti application, its 3D viewers and its Outlook add-in | `tokens.css`, `viewer.css`, `plugin.css` and `brand/` into `public/brand/`; `theme.css`, `controls.css` and `tokens.json` into `src/design-system/` | `npm run sync:design-system` in `claritiai/clariti` | with the next deploy after the synced copy is committed |
 | Revit panel (`claritiai/revit-plugin`) | `tokens.css` and `plugin.css` into `frontend/v3-coord/` | `python3 tools/sync_clariti_tokens.py` | with the next plugin release |
 
 Each sync stamps its copies with the commit they came from, and stops if `main` lacks a name the
@@ -37,8 +38,8 @@ Pick the row that matches how the product renders.
 | The product is | It reads |
 | --- | --- |
 | A page inside the Clariti application | Nothing extra: it uses Clariti's components and utilities, which already read this repository. |
-| A separate Tailwind 4 app | Sync `tokens.css` and `theme.css` like Clariti does, then `@import` them after `tailwindcss`. Its components then use the same utility names as Clariti's. |
-| A plain HTML plugin or page, no React or Tailwind | Bundle synced copies of `tokens.css` and `plugin.css`, then the plugin's own stylesheet. That stylesheet keeps the plugin's own components and names the `--c-*` roles and `--plugin-*` variables. Take the logos from a synced copy of `brand/`. The Revit panel's `index.html` shows the order. |
+| A separate Tailwind 4 app | Sync `tokens.css`, `theme.css` and `controls.css` like Clariti does, then `@import` them after `tailwindcss`. Its components then use the same utility names as Clariti's. |
+| A plain HTML plugin or page, no React or Tailwind | Bundle synced copies of `tokens.css` and `plugin.css` (and `controls.css` once it has a slider or check box), then the plugin's own stylesheet. That stylesheet keeps the plugin's own components and names the `--c-*` roles and `--plugin-*` variables. Take the logos from a synced copy of `brand/`. The Revit panel's `index.html` shows the order. |
 | A 3D view | `tokens.css`, then `viewer.css`, and [`docs/3d.md`](docs/3d.md) for how the view behaves. Inside Clariti, the shared viewer theme already loads both. |
 | A document or a script (PDF, email, Python) | `dist/tokens.json`, synced the same way. |
 

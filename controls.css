@@ -1,0 +1,85 @@
+/* Clariti form controls: the range slider and the check box, the same in every product.
+   Read it after tokens.css.
+
+   Quiet by design: a thin track, a mid-grey fill and a hollow thumb, so nothing sits in pure ink
+   or pure paper and the value the field shows stays the loudest thing on the row. Check boxes and
+   radios wear ink-2, not ink. Everything is in the base layer, so a product's own utilities can
+   still set size and spacing.
+
+   A slider shows how far it is filled from `--range-fill` (0% to 100%), which the product sets
+   from the value (Clariti's Slider component does). Without it the track shows no fill. */
+
+@layer base {
+  input[type="range"] {
+    --range-track: var(--c-line-strong);
+    --range-progress: var(--c-ink-3);
+    --range-thumb: var(--c-surface);
+    --range-ring: var(--c-ink-3);
+    -webkit-appearance: none;
+    appearance: none;
+    height: 16px;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(to right, var(--range-progress) 0 var(--range-fill, 0%), var(--range-track) var(--range-fill, 0%) 100%);
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+    width: 14px;
+    height: 14px;
+    margin-top: -5px;
+    border-radius: 50%;
+    border: 1.5px solid var(--range-ring);
+    background: var(--range-thumb);
+  }
+
+  input[type="range"]::-moz-range-track {
+    height: 4px;
+    border-radius: 999px;
+    background: var(--range-track);
+  }
+
+  input[type="range"]::-moz-range-progress {
+    height: 4px;
+    border-radius: 999px;
+    background: var(--range-progress);
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    box-sizing: border-box;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1.5px solid var(--range-ring);
+    background: var(--range-thumb);
+  }
+
+  input[type="range"]:hover,
+  input[type="range"]:active {
+    --range-ring: var(--c-ink-2);
+  }
+
+  input[type="range"]:focus-visible {
+    outline: 2px solid var(--c-line-strong);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  input[type="range"]:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+
+  /* What is chosen is a soft ink, so a ticked box never glares; the browser's blue never shows. */
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: var(--c-ink-2);
+  }
+}

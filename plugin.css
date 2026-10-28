@@ -48,8 +48,5 @@ input:focus, select:focus {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-ink) 9%, transparent);
 }
 
-/* What is chosen is ink, like clariti.site's tabs and switches: the browser's blue never shows. */
-input[type=checkbox], input[type=radio] { accent-color: var(--c-ink); }
-
 /* Keyboard focus on a button: a ring of ink. */
 button:focus-visible { outline: 2px solid var(--c-ink); outline-offset: 2px; }
