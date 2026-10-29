@@ -1,0 +1,321 @@
+/* Clariti slides — the look of a Clariti presentation: a 16:9 deck written as one HTML page, read
+   on screen and printed to PDF one slide per page.
+
+   Load it after the palette, the fonts and the plugin base:
+       <link rel="stylesheet" href="tokens.css">
+       <link rel="stylesheet" href="fonts.css">
+       <link rel="stylesheet" href="plugin.css">
+       <link rel="stylesheet" href="slides.css">
+
+   A deck is <main class="deck"> holding one <section class="slide"> per slide. Every slide is
+   drawn on a 1280 x 720 grid and scales with the deck's width, so it reads the same in a browser
+   window, full screen and on a printed page. templates/deck.html shows every layout and
+   docs/slides.md says when to use which. Writes no colour; every colour is a --c-* role. Slides
+   stay light: a deck is a document, and a dark slide is an ink slide (.slide.ink), not dark mode. */
+
+:root {
+  /* One unit of the 1280 x 720 grid, from the deck's width. */
+  --u: calc(100cqw / 1280);
+  /* Secondary text and fills on an ink slide, mixed from the two ends of the palette. */
+  --ink-text-2: color-mix(in srgb, var(--c-on-ink) 68%, var(--c-ink));
+  --ink-text-3: color-mix(in srgb, var(--c-on-ink) 52%, var(--c-ink));
+  --ink-line: color-mix(in srgb, var(--c-on-ink) 22%, var(--c-ink));
+  --ink-fill: color-mix(in srgb, var(--c-on-ink) 6%, var(--c-ink));
+}
+
+/* ---- The deck: slides stacked on a muted ground on screen, one per page in print ---- */
+
+html { background: var(--c-muted); scroll-snap-type: y proximity; }
+body { background: transparent; counter-reset: slide; }
+
+.deck {
+  container-type: inline-size;
+  width: min(100vw - 48px, (100vh - 48px) * 16 / 9);
+  margin: 24px auto;
+  display: grid;
+  gap: 24px;
+}
+
+.slide {
+  counter-increment: slide;
+  position: relative;
+  height: calc(720 * var(--u));
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: calc(92 * var(--u)) calc(88 * var(--u)) calc(108 * var(--u));
+  background: var(--c-page);
+  color: var(--c-ink);
+  font-size: calc(19 * var(--u));
+  line-height: 1.45;
+  box-shadow: 0 1px 2px var(--c-shadow), 0 8px 24px var(--c-shadow);
+  border-radius: calc(6 * var(--u));
+  scroll-snap-align: center;
+}
+.slide.muted { background: var(--c-muted); }
+.slide.ink { background: var(--c-ink); color: var(--c-on-ink); }
+
+@page { size: 1280px 720px; margin: 0; }
+@media print {
+  html, body { background: none; }
+  .deck { width: 1280px; margin: 0; gap: 0; }
+  .slide { box-shadow: none; border-radius: 0; break-after: page; }
+  .slide, .slide * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+/* Vertical rhythm: a slide's blocks sit under its title with one gap. .push sends a block, and
+   everything after it, to the bottom of the slide. */
+:where(.slide *) { margin: 0; }
+.slide > * + * { margin-top: calc(40 * var(--u)); }
+.slide > .eyebrow + * { margin-top: calc(16 * var(--u)); }
+.slide > h2 + .lede { margin-top: calc(20 * var(--u)); }
+.slide > .push { margin-top: auto; }
+
+/* ---- Type: a grotesque for words, the mono for facts ---- */
+
+.eyebrow {
+  font-family: var(--plugin-mono);
+  font-size: calc(15 * var(--u));
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--c-ink-3);
+}
+.eyebrow.accent { color: var(--c-accent); }
+.ink .eyebrow { color: var(--ink-text-3); }
+.ink .eyebrow.accent { color: var(--c-accent-line); }
+
+h1 {
+  font-size: calc(92 * var(--u));
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -.035em;
+}
+h2 {
+  font-size: calc(48 * var(--u));
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: -.025em;
+  max-width: calc(1000 * var(--u));
+}
+h3 {
+  font-size: calc(23 * var(--u));
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -.01em;
+}
+h3 + p, h3 + ul { margin-top: calc(10 * var(--u)); }
+p + p { margin-top: calc(12 * var(--u)); }
+
+.lede { font-size: calc(25 * var(--u)); line-height: 1.42; color: var(--c-ink-2); max-width: calc(820 * var(--u)); }
+p, li { color: var(--c-ink-2); }
+.small { font-size: calc(17 * var(--u)); }
+.fine { font-size: calc(15 * var(--u)); color: var(--c-ink-3); }
+strong { font-weight: 600; color: var(--c-ink); }
+.ink p, .ink li, .ink .lede { color: var(--ink-text-2); }
+.ink strong, .ink h3 { color: var(--c-on-ink); }
+.ink .fine { color: var(--ink-text-3); }
+
+/* Lists: a small bullet, hung. */
+ul { padding-left: calc(28 * var(--u)); }
+li + li { margin-top: calc(6 * var(--u)); }
+li::marker { color: var(--c-ink-3); }
+
+/* A statement: one sentence that carries the slide. <em> marks the half that lands. */
+.statement {
+  font-size: calc(60 * var(--u));
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: -.03em;
+  max-width: calc(1040 * var(--u));
+  color: inherit;
+}
+.statement em { font-style: normal; color: var(--c-ink-3); }
+.ink .statement { color: var(--c-on-ink); }
+.ink .statement em { color: var(--c-accent-line); }
+
+/* A figure: the one number a slide is about, in the mono. */
+.stat {
+  font-family: var(--plugin-mono);
+  font-size: calc(76 * var(--u));
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -.02em;
+  color: var(--c-ink);
+}
+.ink .stat { color: var(--c-on-ink); }
+.label {
+  font-family: var(--plugin-mono);
+  font-size: calc(14 * var(--u));
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--c-ink-3);
+}
+.label + * { margin-top: calc(10 * var(--u)); }
+.ink .label { color: var(--ink-text-3); }
+
+/* ---- Running footer: the deck's name on the left, the slide number on the right ---- */
+
+.foot {
+  position: absolute;
+  left: calc(88 * var(--u));
+  right: calc(88 * var(--u));
+  bottom: calc(44 * var(--u));
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--plugin-mono);
+  font-size: calc(14 * var(--u));
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--c-ink-3);
+}
+.foot::after { content: counter(slide, decimal-leading-zero); }
+.ink .foot { color: var(--ink-text-3); }
+
+/* ---- The logo: the ink lockup on a light slide, the paper one on an ink slide ---- */
+
+.logo { display: block; align-self: flex-start; height: calc(42 * var(--u)); width: auto; }
+
+/* ---- Cover ---- */
+
+.cover .logo + * { margin-top: auto; }
+.cover h1 + .lede { margin-top: calc(28 * var(--u)); }
+.meta {
+  display: flex;
+  gap: calc(64 * var(--u));
+  padding-top: calc(28 * var(--u));
+  border-top: 1px solid var(--c-line);
+}
+.meta dd { font-size: calc(19 * var(--u)); color: var(--c-ink); }
+.meta dt + dd { margin-top: calc(8 * var(--u)); }
+.ink .meta { border-color: var(--ink-line); }
+.ink .meta dd { color: var(--c-on-ink); }
+
+/* ---- Columns: equal by default; --cols sets the count; .wide-first, .wide-last and .wide-mid weight them ---- */
+
+.cols {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr));
+  gap: calc(24 * var(--u));
+  align-items: start;
+}
+.cols.wide-first { grid-template-columns: 3fr 2fr; }
+.cols.wide-last { grid-template-columns: 2fr 3fr; }
+.cols.wide-mid { grid-template-columns: 1fr 2fr 1fr; }
+.cols.split { gap: calc(112 * var(--u)); }
+.cols.stretch { align-items: stretch; }
+
+/* A ruled item: a hairline of ink above, a heading, a line or two. */
+.ruled { border-top: 1px solid var(--c-ink); padding-top: calc(18 * var(--u)); }
+.ruled + .ruled { margin-top: calc(24 * var(--u)); }
+.cols > .ruled + .ruled { margin-top: 0; }
+:where(.ruled) p { font-size: calc(17 * var(--u)); }
+.ruled .label + h3 { margin-top: calc(10 * var(--u)); }
+.ink .ruled { border-color: var(--ink-text-2); }
+.ink :where(.ruled) p:not(.label) { font-size: calc(20 * var(--u)); color: var(--c-on-ink); }
+
+/* A panel: a quiet filled ground. A card: a surface with a hairline, for a row of steps. */
+.panel, .card {
+  border-radius: calc(12 * var(--u));
+  padding: calc(30 * var(--u)) calc(30 * var(--u)) calc(34 * var(--u));
+}
+.panel { background: var(--c-muted); }
+.muted .panel { background: var(--c-page); }
+.card { background: var(--c-page); border: 1px solid var(--c-line); }
+:where(.panel, .card) :where(p, li) { font-size: calc(17 * var(--u)); }
+.panel .label + h3, .card .label + h3 { margin-top: calc(10 * var(--u)); }
+.panel > .stat + p { margin-top: calc(22 * var(--u)); }
+/* The step the AI takes: the one place the accent frames a card. */
+.card.ai { border-color: var(--c-accent); }
+.card.ai .label { color: var(--c-accent); }
+/* An ink panel among light ones: what the slide warns about. */
+.panel.ink { background: var(--c-ink); color: var(--c-on-ink); }
+.ink .panel { background: var(--ink-fill); }
+.ink .card { background: transparent; border-color: var(--ink-line); }
+
+/* A band: one line the slide ends on, in ink, with a label in front. */
+.band {
+  display: flex;
+  align-items: baseline;
+  gap: calc(40 * var(--u));
+  border-radius: calc(12 * var(--u));
+  padding: calc(26 * var(--u)) calc(34 * var(--u));
+  background: var(--c-ink);
+  color: var(--c-on-ink);
+}
+.band .label { flex: none; width: calc(160 * var(--u)); color: var(--c-accent-line); }
+.band p { color: var(--c-on-ink); font-size: calc(21 * var(--u)); margin: 0; }
+.band.quiet { background: var(--c-muted); color: var(--c-ink); }
+.band.quiet .label { color: var(--c-ink-3); }
+.band.quiet p { color: var(--c-ink); }
+
+/* Code or a prompt, as typed. */
+.code {
+  border-radius: calc(12 * var(--u));
+  padding: calc(28 * var(--u)) calc(34 * var(--u));
+  background: var(--c-ink);
+  color: var(--c-on-ink);
+}
+.code .label { color: var(--c-accent-line); }
+.code pre {
+  font-family: var(--plugin-mono);
+  font-size: calc(18 * var(--u));
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: var(--c-on-ink);
+}
+
+/* ---- Rows: an agenda, numbered steps ---- */
+
+.rows { list-style: none; padding: 0; border-top: 1px solid var(--c-line); }
+.rows li {
+  display: grid;
+  grid-template-columns: calc(90 * var(--u)) 1fr auto;
+  align-items: baseline;
+  padding: calc(15 * var(--u)) 0;
+  margin: 0;
+  border-bottom: 1px solid var(--c-line);
+  color: var(--c-ink);
+  font-size: calc(26 * var(--u));
+  letter-spacing: -.015em;
+}
+.rows li > :first-child, .rows li > :last-child {
+  font-family: var(--plugin-mono);
+  font-size: calc(16 * var(--u));
+  letter-spacing: 0;
+  color: var(--c-ink-3);
+}
+.rows li > :first-child { color: var(--c-accent); }
+.ink .rows, .ink .rows li { border-color: var(--ink-line); color: var(--c-on-ink); }
+
+/* A big numeral over a line of text. */
+.numeral {
+  font-size: calc(64 * var(--u));
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -.03em;
+  color: var(--c-ink-3);
+}
+.numeral + * { margin-top: calc(24 * var(--u)); }
+
+/* ---- Tables: facts in rows, a muted header, hairlines ---- */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: calc(18 * var(--u));
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: calc(11 * var(--u)) calc(14 * var(--u));
+  border: 1px solid var(--c-line-strong);
+}
+th { background: var(--c-muted); font-weight: 400; color: var(--c-ink-3); }
+td { color: var(--c-ink-2); background: var(--c-page); }
+td:first-child { color: var(--c-ink); }
+td.num, th.num { font-family: var(--plugin-mono); text-align: right; }
+.muted td { background: var(--c-page); }
+.muted th { background: var(--c-sunken); }

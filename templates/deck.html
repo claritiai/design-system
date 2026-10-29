@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deck title</title>
+<!-- Copy this file to start a deck. The paths below read the design system from this repository;
+     in a copy, point them at where tokens.css, fonts.css, plugin.css, slides.css and brand/ are
+     served. Print to PDF from Chrome with margins "None" and background graphics on. -->
+<link rel="stylesheet" href="../tokens.css">
+<link rel="stylesheet" href="../fonts.css">
+<link rel="stylesheet" href="../plugin.css">
+<link rel="stylesheet" href="../slides.css">
+</head>
+<body>
+<main class="deck">
+
+  <!-- Cover -->
+  <section class="slide cover">
+    <img class="logo" src="../brand/clariti-lockup-ink.svg" alt="Clariti">
+    <p class="eyebrow">Deck type · Edition</p>
+    <h1>Deck title</h1>
+    <p class="lede">One or two sentences that say what the reader takes away, in plain words. The title names the subject; this line says why it matters.</p>
+    <dl class="meta push">
+      <div><dt class="label">Prepared for</dt><dd>Organisation</dd></div>
+      <div><dt class="label">Prepared by</dt><dd>Name, Clariti</dd></div>
+      <div><dt class="label">Date</dt><dd>DD Mon YYYY</dd></div>
+    </dl>
+  </section>
+
+  <!-- Agenda -->
+  <section class="slide">
+    <p class="eyebrow">Agenda</p>
+    <h2>Five parts, 45 minutes</h2>
+    <ol class="rows">
+      <li><span>01</span>The first part<span>8 min</span></li>
+      <li><span>02</span>The second part<span>10 min</span></li>
+      <li><span>03</span>The third part<span>15 min</span></li>
+      <li><span>04</span>The fourth part<span>7 min</span></li>
+      <li><span>05</span>Questions<span>5 min</span></li>
+    </ol>
+    <p class="foot">Deck title · Short name</p>
+  </section>
+
+  <!-- Text and a ruled list -->
+  <section class="slide">
+    <p class="eyebrow">01 — Section</p>
+    <h2>A slide title is a sentence that states the point</h2>
+    <div class="cols split">
+      <div>
+        <p class="lede">The lede carries the argument in one or two sentences.</p>
+        <p class="small">Supporting detail sits under it, smaller, for the reader who wants it.</p>
+        <p class="fine">A fine line for a caveat or a reference.</p>
+      </div>
+      <div>
+        <div class="ruled"><p class="label">Group</p><h3>Item · Item · Item · Item</h3></div>
+        <div class="ruled"><p class="label">Group</p><h3>Item · Item · Item</h3></div>
+      </div>
+    </div>
+    <p class="foot">Deck title · Short name</p>
+  </section>
+
+  <!-- Panels: a timeline -->
+  <section class="slide">
+    <p class="eyebrow">02 — Timeline</p>
+    <h2>Panels for phases, sized to what each holds</h2>
+    <div class="cols wide-mid stretch">
+      <div class="panel"><p class="label">Weeks 1–2</p><h3>Phase</h3><p>What happens in this phase, and who does it.</p></div>
+      <div class="panel"><p class="label">Weeks 3–6</p><h3>Phase</h3><p>The longest phase gets the widest panel. It can hold two short paragraphs.</p><p>The second says what ends it.</p></div>
+      <div class="panel"><p class="label">Weeks 7–8</p><h3>Phase</h3><p>What happens in this phase, and who does it.</p></div>
+    </div>
+    <p class="small">A closing line under the panels, with <strong>one phrase</strong> in bold where it carries the slide.</p>
+    <p class="foot">Deck title · Short name</p>
+  </section>
+
+  <!-- Ruled grid -->
+  <section class="slide">
+    <p class="eyebrow">03 — Grid</p>
+    <h2>A ruled grid for a list of equals</h2>
+    <div class="cols" style="--cols: 4">
+      <div class="ruled"><h3>Item</h3><p>One or two lines on what this item is.</p></div>
+      <div class="ruled"><h3>Item</h3><p>One or two lines on what this item is.</p></div>
+      <div class="ruled"><h3>Item</h3><p>One or two lines on what this item is.</p></div>
+      <div class="ruled"><h3>Item</h3><p>One or two lines on what this item is.</p></div>
+      <div class="ruled"><h3>Item</h3><p>One or two lines on what this item is.</p></div>
+      <div class="ruled"><h3>Item</h3><p>One or two lines on what this item is.</p></div>
+      <div class="ruled"><h3>Item</h3><p>One or two lines on what this item is.</p></div>
+      <div class="ruled"><h3>Item</h3><p>One or two lines on what this item is.</p></div>
+    </div>
+    <p class="fine">Out of scope, or a qualification of the grid, in a fine line.</p>
+    <p class="foot">Deck title · Short name</p>
+  </section>
+
+  <!-- Steps, one by the AI -->
+  <section class="slide muted">
+    <p class="eyebrow">04 — Process</p>
+    <h2>The AI drafts. A person decides.</h2>
+    <div class="cols stretch" style="--cols: 4">
+      <div class="card"><p class="label">1 · Engineer</p><h3>Ask</h3><p>States the problem in plain language.</p></div>
+      <div class="card ai"><p class="label">2 · AI</p><h3>Interpret</h3><p>Reads the model, picks the tool, assembles the inputs.</p></div>
+      <div class="card"><p class="label">3 · Engine</p><h3>Verify</h3><p>Runs the calculation to the standard on verified data.</p></div>
+      <div class="card"><p class="label">4 · Engineer</p><h3>Sign off</h3><p>Reviews the evidence, then accepts or rejects.</p></div>
+    </div>
+    <p>The accent frames only the step the AI takes. Every other step is a plain card.</p>
+    <p class="foot">Deck title · Short name</p>
+  </section>
+
+  <!-- Numbered objectives -->
+  <section class="slide">
+    <p class="eyebrow">Objectives</p>
+    <h2>By the end of this session you will be able to</h2>
+    <div class="cols stretch" style="--cols: 3">
+      <div class="card"><p class="numeral">1</p><p>Explain the first thing, in a sentence a reader could repeat.</p></div>
+      <div class="card"><p class="numeral">2</p><p>Describe the second thing and how it connects to the first.</p></div>
+      <div class="card"><p class="numeral">3</p><p>Apply the third thing to a worked example.</p></div>
+    </div>
+    <p class="foot">Deck title · Short name</p>
+  </section>
+
+  <!-- Statement -->
+  <section class="slide ink">
+    <p class="eyebrow accent">05 — The point</p>
+    <p class="statement push">A statement slide says one thing. <em>The half that lands is in the accent.</em></p>
+    <p class="lede push">One quiet line under it, to say what the rest of the deck does about it.</p>
+    <p class="foot">Deck title · Short name</p>
+  </section>
+
+  <!-- Compare -->
+  <section class="slide">
+    <p class="eyebrow">06 — Compare</p>
+    <h2>Two panels, side by side</h2>
+    <div class="cols stretch">
+      <div class="panel">
+        <h3>What it does</h3>
+        <ul><li>A point in a few words</li><li>A point in a few words</li><li>A point in a few words</li></ul>
+      </div>
+      <div class="panel ink">
+        <h3>What it must not do</h3>
+        <ul><li>A point in a few words</li><li>A point in a few words</li><li>A point in a few words</li></ul>
+      </div>
+    </div>
+    <p class="band push"><span class="label">Exercise</span><span>A band ends the slide on one line the audience acts on.</span></p>
+    <p class="foot">Deck title · Short name</p>
+  </section>
+
+  <!-- Prompt and result -->
+  <section class="slide">
+    <p class="eyebrow">07 — Example</p>
+    <h2>A prompt as typed, beside what comes back</h2>
+    <div class="cols">
+      <div class="code">
+        <p class="label">Prompt</p>
+        <pre>“Select panel P-[__]. Give me its mass, centre of gravity and thickness.”</pre>
+      </div>
+      <div>
+        <p class="label">Returns</p>
+        <ul><li>A value, with the parameter it came from</li><li>A value, with the parameter it came from</li><li>A value, with the parameter it came from</li></ul>
+      </div>
+    </div>
+    <p>Placeholders a presenter fills in are written in brackets: [__ kg], [Date].</p>
+    <p class="foot">Deck title · Short name</p>
+  </section>
+
+  <!-- Figure and table -->
+  <section class="slide">
+    <p class="eyebrow">08 — Commercials</p>
+    <h2>One figure, then the terms in a table</h2>
+    <div class="cols wide-last">
+      <div class="panel">
+        <p class="label">Subscription</p>
+        <p class="stat">£0,000</p>
+        <p>per year. One or two lines on what the figure covers and how it changes.</p>
+      </div>
+      <table>
+        <thead><tr><th>Item</th><th>Terms</th></tr></thead>
+        <tbody>
+          <tr><td>Item</td><td>What it includes</td></tr>
+          <tr><td>Item</td><td>What it includes</td></tr>
+          <tr><td>Item</td><td>Included</td></tr>
+          <tr><td>Item</td><td>What it includes</td></tr>
+          <tr><td>Item</td><td>Not billed</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="foot">Deck title · Short name</p>
+  </section>
+
+  <!-- Close -->
+  <section class="slide ink">
+    <p class="eyebrow">Next steps</p>
+    <h2>A closing title that asks for the decision</h2>
+    <div class="cols push" style="--cols: 4">
+      <div class="ruled"><p class="label">01</p><p>The first thing the reader does</p></div>
+      <div class="ruled"><p class="label">02</p><p>The second thing the reader does</p></div>
+      <div class="ruled"><p class="label">03</p><p>The third thing the reader does</p></div>
+      <div class="ruled"><p class="label">04</p><p>The fourth thing the reader does</p></div>
+    </div>
+    <img class="logo push" src="../brand/clariti-lockup-paper.svg" alt="Clariti">
+  </section>
+
+</main>
+</body>
+</html>
