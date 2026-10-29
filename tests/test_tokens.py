@@ -69,6 +69,8 @@ class Viewer(unittest.TestCase):
                "--viewer-muted", "--viewer-border", "--viewer-accent", "--viewer-accent-bg",
                "--pass", "--pass-bg", "--pass-border", "--warn", "--warn-bg", "--warn-border",
                "--fail", "--fail-bg", "--fail-border")
+    # the white card model: palette roles too, but a different one in each theme
+    MODEL = ("--model-card", "--model-shade")
 
     def setUp(self):
         blocks = build.blocks((ROOT / "viewer.css").read_text(encoding="utf-8"))
@@ -87,12 +89,22 @@ class Viewer(unittest.TestCase):
                 self.assertIn(match.group(1), light)
                 self.assertNotIn(role, self.dark)
 
+    def test_model_names_palette_roles_in_both_themes(self):
+        light, dark = build.themes(CSS)
+        for role in self.MODEL:
+            for theme, palette in ((self.light, light), (self.dark, dark)):
+                with self.subTest(role=role):
+                    match = re.fullmatch(r"var\(--c-([\w-]+)\)", theme[role])
+                    self.assertIsNotNone(match)
+                    self.assertIn(match.group(1), palette)
+                    self.assertNotIn(match.group(1), ("accent", "accent-tint", "accent-line"))
+
     def test_scene_roles_are_colours_and_never_the_accent(self):
         light, dark = build.themes(CSS)
         accents = {light["accent"], dark["accent"]}
         for theme in (self.light, self.dark):
             for role, value in theme.items():
-                if role in self.ALIASED:
+                if role in self.ALIASED or role in self.MODEL:
                     continue
                 with self.subTest(role=role):
                     self.assertRegex(value, COLOUR)
