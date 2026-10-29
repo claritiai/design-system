@@ -35,9 +35,9 @@ def code(name):
 
 
 class Layers(unittest.TestCase):
-    """theme.css (Tailwind products), plugin.css (plain HTML plugins) and controls.css (shared form
-    controls) name palette roles and hold no colour of their own."""
-    LAYERS = ("theme.css", "plugin.css", "controls.css")
+    """theme.css (Tailwind products), plugin.css (plain HTML plugins), controls.css (shared form
+    controls) and slides.css (presentations) name palette roles and hold no colour of their own."""
+    LAYERS = ("theme.css", "plugin.css", "controls.css", "slides.css")
 
     def test_name_only_roles_the_palette_declares(self):
         light, dark = build.themes(CSS)
@@ -137,9 +137,25 @@ class Package(unittest.TestCase):
     def test_package_ships_every_product_file(self):
         import json
         files = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))["files"]
-        for name in ("tokens.css", "theme.css", "controls.css", "viewer.css", "plugin.css", "fonts.css", "fonts/",
-                     "brand/", "dist/"):
+        for name in ("tokens.css", "theme.css", "controls.css", "viewer.css", "plugin.css", "slides.css", "fonts.css",
+                     "fonts/", "brand/", "templates/", "dist/"):
             self.assertIn(name, files)
+
+
+class Slides(unittest.TestCase):
+    """The deck template reads the design system in load order, and every file it names exists."""
+
+    def test_template_loads_the_layers_in_order_and_names_shipped_files(self):
+        html = (ROOT / "templates" / "deck.html").read_text(encoding="utf-8")
+        sheets = re.findall(r'<link rel="stylesheet" href="\.\./([^"]+)">', html)
+        self.assertEqual(sheets, ["tokens.css", "fonts.css", "plugin.css", "slides.css"])
+        for src in re.findall(r'src="\.\./([^"]+)"', html):
+            with self.subTest(src=src):
+                self.assertTrue((ROOT / src).is_file(), src)
+
+    def test_template_writes_no_colour(self):
+        html = (ROOT / "templates" / "deck.html").read_text(encoding="utf-8")
+        self.assertEqual(re.findall(r"#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?|oklch|oklab)\(", html), [])
 
 
 class Brand(unittest.TestCase):
