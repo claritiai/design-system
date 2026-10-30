@@ -2,6 +2,8 @@
 
    - Canvas and chrome (--viewer-*) and engineering status (--pass, --warn, --fail) name the
      palette's roles, so they flip with the theme in tokens.css and are never restated here.
+   - The white card model (--model-*) is the construction every view draws: one matte card,
+     outlined in ink. It names the palette's roles, so it changes with the theme.
    - Grid, physical materials, evidence in the scene, evidence basis and light are the scene's
      own roles. They are data, not brand: a material looks like the material, and the brand
      accent never paints geometry.
@@ -46,6 +48,11 @@
   --basis-unnamed: #b45309;
   --basis-datasheet: #96835f;
   --basis-unknown: #dc2626;
+
+  /* the white card model: the card every solid is made of, and the card a shade down (a cut or
+     sawn face, the mould a panel lies on) */
+  --model-card: var(--c-surface);
+  --model-shade: var(--c-sunken);
 
   /* physical materials, opaque: the product and what it is fixed to */
   --material-concrete: #9aa0a3;
@@ -103,6 +110,8 @@
 
 :root.dark,
 :root[data-theme="dark"] {
+  --model-card: var(--c-line-strong);
+  --model-shade: var(--c-line);
   --viewer-grid-major: #2e2e2e;
   --viewer-grid-minor: #222222;
   --basis-ul: #7fb0d0;

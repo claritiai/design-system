@@ -9,7 +9,7 @@ that renders them.
 | --- | --- |
 | [`tokens.css`](tokens.css) | The palette: every `--c-*` role, light and dark. Plain CSS that any page can read. |
 | [`theme.css`](theme.css) | For Tailwind 4 products: the palette under the names Clariti's components are written against (`bg-card`, `text-status-warn`, `text-ai-accent`, `rounded-control`, ...). No colour of its own. |
-| [`viewer.css`](viewer.css) | For 3D views: the canvas and its chrome, engineering status in the scene, physical materials, evidence in the scene, evidence basis and light. Read after `tokens.css`. |
+| [`viewer.css`](viewer.css) | For 3D views: the canvas and its chrome, engineering status in the scene, the white card model, physical materials, evidence in the scene, evidence basis and light. Read after `tokens.css`. |
 | [`controls.css`](controls.css) | The form controls every product shares: the range slider (thin track, mid-grey fill, hollow thumb) and the check box, both in ink-3. Plain CSS on the palette roles, in the base layer. |
 | [`plugin.css`](plugin.css) | For plain HTML pages and plugins, such as the Revit panel: the shared fonts, radii, page, text fields and focus. Each plugin keeps its own buttons and components and names these variables (`--plugin-sans`, `--plugin-mono`, `--plugin-radius-sm`, ...). No colour of its own. |
 | [`slides.css`](slides.css), [`templates/deck.html`](templates/deck.html) | For presentations: a 16:9 deck written as one HTML page, read on screen and printed to PDF one slide per page. The template shows every layout; [`docs/slides.md`](docs/slides.md) says when to use which. No colour of its own. |
