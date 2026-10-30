@@ -2,7 +2,7 @@
   "name": "@clariti/design-system",
   "version": "0.1.0",
   "private": true,
-  "description": "Clariti's colour palette, Tailwind theme, form controls, 3D palette, plugin base, slides and brand assets.",
+  "description": "Clariti's colour palette, Tailwind theme, form controls, 3D palette, plugin base, slides, brand assets and the app shell (sidebar and chat frame).",
   "license": "UNLICENSED",
   "repository": "github:claritiai/design-system",
   "files": [
@@ -16,6 +16,27 @@
     "fonts/",
     "brand/",
     "templates/",
+    "shell/",
     "dist/"
-  ]
+  ],
+  "peerDependencies": {
+    "lucide-react": ">=0.554.0",
+    "next": ">=15",
+    "react": ">=19",
+    "react-dom": ">=19"
+  },
+  "peerDependenciesMeta": {
+    "lucide-react": {
+      "optional": true
+    },
+    "next": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  }
 }

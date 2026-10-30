@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 #: Everything a reader sees, except the generated export, the logos and these tests.
 SCANNED = sorted([ROOT / "README.md", *ROOT.glob("docs/**/*.md"), *ROOT.glob("*.css"),
-                  *ROOT.glob("tools/*.py"), *ROOT.glob("templates/*.html"),
+                  *ROOT.glob("tools/*.py"), *ROOT.glob("templates/*.html"), *ROOT.glob("shell/*.ts*"),
                   *ROOT.glob(".github/workflows/*.yml")])
 #: Wording about what is coming next. The files describe what exists.
 AHEAD = {"future", "roadmap", "planned", "upcoming", "soon"}
@@ -30,7 +30,7 @@ class Public(unittest.TestCase):
     def test_scans_the_files_a_reader_sees(self):
         names = {p.relative_to(ROOT).as_posix() for p in SCANNED}
         self.assertTrue({"README.md", "docs/roles.md", "tokens.css", "theme.css", "plugin.css", "slides.css",
-                         "templates/deck.html"} <= names)
+                         "templates/deck.html", "shell/sidebar.tsx", "shell/chat.tsx"} <= names)
 
     def test_no_wording_about_what_is_coming_and_no_manufacturer(self):
         for path in SCANNED:

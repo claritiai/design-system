@@ -12,6 +12,9 @@
    own local roles after it; it never gives one of these a value. Plain HTML pages and plugins do
    not need this file: they read tokens.css and plugin.css. */
 
+/* The app shell's classes (shell/), so an app that imports this file and the shell gets both. */
+@source "./shell";
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
