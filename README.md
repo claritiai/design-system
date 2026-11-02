@@ -2,7 +2,7 @@
 
 The colour palette, the shared base styles, the app shell and the brand assets that every Clariti
 product shares. This repository holds the foundation: the palette, a Tailwind theme for the apps,
-the sidebar and chat frame the apps share, a plain CSS base for the plugins, and the assets. Product
+the sidebar, top bar and chat frame the apps share, a plain CSS base for the plugins, and the assets. Product
 components stay in the product that renders them.
 
 | Path | What it is |
@@ -14,7 +14,7 @@ components stay in the product that renders them.
 | [`plugin.css`](plugin.css) | For plain HTML pages and plugins, such as the Revit panel: the shared fonts, radii, page, text fields and focus. Each plugin keeps its own buttons and components and names these variables (`--plugin-sans`, `--plugin-mono`, `--plugin-radius-sm`, ...). No colour of its own. |
 | [`slides.css`](slides.css), [`templates/deck.html`](templates/deck.html) | For presentations: a 16:9 deck written as one HTML page, read on screen and printed to PDF one slide per page. The template shows every layout; [`docs/slides.md`](docs/slides.md) says when to use which. No colour of its own. |
 | [`fonts.css`](fonts.css), [`fonts/`](fonts) | IBM Plex Mono, the mono face, in 400, 500 and 600, for each product to serve itself (no font service). Helvetica Neue, the face for words, is the system's. SIL Open Font License 1.1. |
-| [`shell/`](shell) | For the Clariti apps (Next.js, React, Tailwind 4): the sidebar (lockup, collapse, the app's switch and links, recent chats, the person) and the chat frame (header, thread, message, reply bar). Layout only: each app passes its links, chats, labels and account menu. Needs `next`, `react` and `lucide-react`; the app serves `brand/` at `/brand/`. |
+| [`shell/`](shell) | For the Clariti apps (Next.js, React, Tailwind 4): the sidebar (lockup, collapse, the app's switch and links, recent chats, the person), the top bar for an app framed from the top instead (the mark and the app's name, the app's switch, its actions and the person on one line, and its pages as tabs underneath that scroll sideways at phone width) and the chat frame (header, thread, message, reply bar). Layout only: each app passes its links or tabs, chats, labels and account menu. Needs `next`, `react` and `lucide-react`; the app serves `brand/` at `/brand/`. |
 | [`brand/`](brand) | The Clariti lockups (ink, paper), the mark (ink, paper) and the favicon. |
 | [`dist/tokens.json`](dist/tokens.json) | The palette as JSON, for code that cannot read CSS (PDF generators, Python). Generated. |
 | [`docs/roles.md`](docs/roles.md) | Which role means what, and the rules for using them. |
@@ -37,7 +37,7 @@ Pick the row that matches how the product renders.
 | The product is | It reads |
 | --- | --- |
 | A page inside the Clariti application | Nothing extra: it uses Clariti's components and utilities, which already read this repository. |
-| A separate Tailwind 4 app | Install it like Clariti does, then `@import` `tokens.css`, `theme.css` and `controls.css` from the package after `tailwindcss`, and load `fonts/` with the framework's font loader as `--font-plex-mono` (or serve `fonts.css`). Its components then use the same utility names as Clariti's. For Clariti's sidebar and chat frame, add `transpilePackages: ['@clariti/design-system']` to `next.config` and import them from `@clariti/design-system/shell`; `theme.css` already points Tailwind at their classes. |
+| A separate Tailwind 4 app | Install it like Clariti does, then `@import` `tokens.css`, `theme.css` and `controls.css` from the package after `tailwindcss`, and load `fonts/` with the framework's font loader as `--font-plex-mono` (or serve `fonts.css`). Its components then use the same utility names as Clariti's. For Clariti's sidebar or top bar and its chat frame, add `transpilePackages: ['@clariti/design-system']` to `next.config` and import them from `@clariti/design-system/shell`; `theme.css` already points Tailwind at their classes. |
 | A plain HTML plugin or page, no React or Tailwind | Fetch `tokens.css`, `plugin.css` and `fonts.css` with its `fonts/` folder (and `controls.css` once it has a slider or check box) when the plugin is built and bundle them, then the plugin's own stylesheet. That stylesheet keeps the plugin's own components and names the `--c-*` roles and `--plugin-*` variables. Take the logos from `brand/` the same way. The Revit panel's `index.html` shows the order. |
 | A 3D view | `tokens.css`, then `viewer.css`, and [`docs/3d.md`](docs/3d.md) for how the view behaves. Inside Clariti, the shared viewer theme already loads both. |
 | A presentation | Copy [`templates/deck.html`](templates/deck.html), keep the slides it needs, and print it to PDF. [`docs/slides.md`](docs/slides.md) covers the layouts and the rules. |
@@ -54,7 +54,7 @@ This repository is public, so it holds only the foundation:
 - the theme names for Tailwind apps (`theme.css`);
 - the base styles for plain HTML pages and plugins (`plugin.css`);
 - the presentation styles and the deck template (`slides.css`, `templates/`);
-- the app shell (`shell/`): the sidebar and chat frame, layout only;
+- the app shell (`shell/`): the sidebar, the top bar and the chat frame, layout only;
 - the Clariti logos (`brand/`);
 - the roles doc, and the tooling that builds and tests all of the above.
 
