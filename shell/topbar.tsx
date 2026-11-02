@@ -41,9 +41,10 @@ export function TopBar({ homeHref, homeLabel = 'Clariti home', product, top, act
       </div>
       {tabs.length > 0 ? (
         <nav aria-label={tabsLabel} className="flex gap-1 overflow-x-auto px-2 sm:px-4">
-          {tabs.map((tab) => tab.href && !tab.disabled ? (
+          {/* Keyed by position, not label: two tabs may share a label, and a shared key would leave one stale. */}
+          {tabs.map((tab, i) => tab.href && !tab.disabled ? (
             <Link
-              key={tab.label}
+              key={i}
               href={tab.href}
               aria-current={tab.active ? 'page' : undefined}
               title={tab.title}
@@ -55,7 +56,7 @@ export function TopBar({ homeHref, homeLabel = 'Clariti home', product, top, act
             </Link>
           ) : (
             <span
-              key={tab.label}
+              key={i}
               title={tab.title}
               aria-disabled="true"
               className="-mb-px inline-flex cursor-not-allowed items-center gap-1.5 whitespace-nowrap border-b-2 border-transparent px-3 py-2.5 text-sm text-muted-foreground/60"
