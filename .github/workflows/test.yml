@@ -8,5 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # tests/test_version.py compares with main
       - run: python3 tools/build.py --check
       - run: python3 -m unittest discover -s tests -v
