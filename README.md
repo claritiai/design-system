@@ -30,6 +30,11 @@ records which commit it took.
 | Clariti application, its 3D viewers and its Outlook add-in, and the partners site | An npm dependency installed from this repository (`"@clariti/design-system": "github:claritiai/design-system"`). Stylesheets import it from `node_modules`; the build copies the served files (`tokens.css`, `viewer.css`, `plugin.css`, `fonts.css`, `fonts/`, `brand/`) into `public/brand/`, which is not committed, and the app loads `fonts/` with its font loader. The lockfile records the commit, `npm update @clariti/design-system` takes `main`, and the build warns while it is behind. | with the next deploy after the update is merged |
 | Revit panel (`claritiai/revit-plugin`) | `tokens.css`, `plugin.css`, `controls.css`, `fonts.css` and `fonts/`, fetched from `main` when a release is built (`tools/make_release.py`), and by `tools/sync_clariti_tokens.py` for development and tests. Not committed. | with the next plugin release |
 
+Every change to a file the package ships raises `version` in `package.json`. A webpack build cache (Next.js's,
+which Vercel keeps between builds) knows an installed package by its name and version only, so a product built
+against the same version goes on using the files it saw last. `tests/test_version.py` fails when a shipped file
+differs from `main` and the version does not.
+
 ## Add a product
 
 Pick the row that matches how the product renders.
@@ -76,10 +81,11 @@ anything but React, Next.js's link and image, react-dom and the icon set.
 
 1. Edit `tokens.css`, in both themes.
 2. `python3 tools/build.py` to regenerate `dist/tokens.json`.
-3. `python3 -m unittest discover -s tests`. The tests check that both themes declare every role,
+3. Raise `version` in `package.json`.
+4. `python3 -m unittest discover -s tests`. The tests check that both themes declare every role,
    that every value is a colour, that `theme.css` and `plugin.css` name only declared roles and
-   write no colour, and that the JSON export is current.
-4. Open a pull request to `main`.
+   write no colour, that the JSON export is current, and that the version was raised.
+5. Open a pull request to `main`.
 
 ## Use
 
