@@ -1,6 +1,6 @@
 {
   "name": "@clariti/design-system",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "description": "Clariti's colour palette, Tailwind theme, form controls, 3D palette, plugin base, slides, brand assets and the app shell (sidebar, top bar, chat frame and chat panel).",
   "license": "UNLICENSED",
