@@ -35,9 +35,15 @@ export function useChatPanel() {
 
 /**
  * Holds the panel's state for everything under it: the panel and the app's button that opens it. `dockAt` is the
- * Tailwind width from which the panel docks beside the page.
+ * Tailwind width from which the panel docks beside the page. With `startOpen={false}` the panel waits for the app's
+ * button at every width: opened, it docks or covers the page as usual, and it still collapses on the way down, but it
+ * does not open by itself on the way up.
  */
-export function ChatPanelProvider({ dockAt = 'xl', children }: { dockAt?: Wide; children: React.ReactNode }) {
+export function ChatPanelProvider({ dockAt = 'xl', startOpen = true, children }: {
+  dockAt?: Wide;
+  startOpen?: boolean;
+  children: React.ReactNode;
+}) {
   const query = `(min-width: ${WIDTH[dockAt]}px)`;
   const docked = useSyncExternalStore(
     (change) => {
@@ -48,11 +54,14 @@ export function ChatPanelProvider({ dockAt = 'xl', children }: { dockAt?: Wide; 
     () => window.matchMedia(query).matches,
     () => false,
   );
-  const [open, setOpen] = useState<boolean | null>(null);
+  const [open, setOpen] = useState<boolean | null>(startOpen ? null : false);
   const was = useRef(docked);
   useEffect(() => {
-    if (was.current !== docked) { was.current = docked; setOpen(null); }
-  }, [docked]);
+    if (was.current === docked) return;
+    was.current = docked;
+    if (startOpen) setOpen(null);
+    else if (!docked) setOpen(false);
+  }, [docked, startOpen]);
   const shown = open ?? docked;
   const value: Panel = {
     shown, docked, open, dockAt,
