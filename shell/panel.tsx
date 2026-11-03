@@ -66,8 +66,9 @@ export function ChatPanelProvider({ dockAt = 'xl', children }: { dockAt?: Wide; 
 /**
  * The panel, on the `side` of a `relative flex` row that holds the page, named `label`. Its header has `icon`, `title`
  * (the chat open in it, say), the app's `actions` and the hide button. With `chip`, a hidden panel leaves a pill on
- * the page's edge that opens it again, `badge` beside its label (unread answers, say). Below the docking width the
- * panel covers the page, and a link clicked in it, Escape or a click on the page around it closes it.
+ * the page's edge that opens it again, `badge` beside its label (unread answers, say). The pill sits at the top of the
+ * edge, or halfway down it with `chipAt="middle"`, clear of a page that keeps its own controls in the corner. Below the
+ * docking width the panel covers the page, and a link clicked in it, Escape or a click on the page around it closes it.
  *
  * `header={false}` leaves out the header row, for a body that brings its own: that header then hides the panel with
  * `useChatPanel().hide`. `fill` is for a row with no page beside the panel yet: the panel takes the whole row at every
@@ -76,7 +77,8 @@ export function ChatPanelProvider({ dockAt = 'xl', children }: { dockAt?: Wide; 
  * `closed`.
  */
 export function ChatPanel({
-  side = 'right', label, title, icon, actions, width = 400, hideLabel = 'Hide', chip, badge, header = true, fill = false, children,
+  side = 'right', label, title, icon, actions, width = 400, hideLabel = 'Hide', chip, chipAt = 'top', badge, header = true, fill = false,
+  children,
 }: {
   side?: 'left' | 'right';
   label: string;
@@ -86,6 +88,7 @@ export function ChatPanel({
   width?: number;
   hideLabel?: string;
   chip?: string;
+  chipAt?: 'top' | 'middle';
   badge?: React.ReactNode;
   header?: boolean;
   fill?: boolean;
@@ -108,9 +111,9 @@ export function ChatPanel({
         <button
           onClick={show}
           title={chip}
-          className={`absolute top-3 z-10 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-2 shadow-raised hover:bg-muted transition-colors ${
-            side === 'right' ? 'right-3.5' : 'left-3.5'
-          } ${chipShows}`}
+          className={`absolute z-10 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-2 shadow-raised hover:bg-muted transition-colors ${
+            chipAt === 'middle' ? 'top-1/2 -translate-y-1/2' : 'top-3'
+          } ${side === 'right' ? 'right-3.5' : 'left-3.5'} ${chipShows}`}
         >
           {icon ? <span className="flex text-ai-accent [&>svg]:size-3.5">{icon}</span> : null}
           <span className="text-xs font-medium text-foreground">{chip}</span>
