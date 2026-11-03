@@ -40,12 +40,20 @@ export function ChatHeader({ title, icon, onBack, backLabel = 'Back', backTitle,
 /**
  * The scrolling thread. It opens at the latest message and follows a streaming answer while the person stays at the
  * bottom; scrolled up, it stays put and offers a button back down. Answers take its full width when it is narrow, as
- * in a side panel.
+ * in a side panel. `compact` is the tighter chat docked beside a design: 12px between messages, inset 16px inside
+ * 16px gutters, and 13px as the thread's own text size (a message may set its own).
  */
-export function ChatThread({ children }: { children: React.ReactNode }) {
+export function ChatThread({ children, compact }: { children: React.ReactNode; compact?: boolean }) {
   return (
-    <StickToBottom className="relative flex-1 min-h-0 overflow-y-hidden" initial="smooth" resize="smooth" role="log">
-      <StickToBottom.Content className="@container max-w-[720px] mx-auto w-full flex flex-col gap-3.5 py-5 px-5">{children}</StickToBottom.Content>
+    <StickToBottom
+      className={`relative flex-1 min-h-0 overflow-y-hidden ${compact ? 'px-4 text-[13px] leading-[1.55]' : ''}`}
+      initial="smooth"
+      resize="smooth"
+      role="log"
+    >
+      <StickToBottom.Content className={`@container max-w-[720px] mx-auto w-full flex flex-col ${compact ? 'gap-3 p-4' : 'gap-3.5 py-5 px-5'}`}>
+        {children}
+      </StickToBottom.Content>
       <BackDown />
     </StickToBottom>
   );
@@ -59,7 +67,7 @@ function BackDown() {
       type="button"
       onClick={() => scrollToBottom()}
       aria-label="Latest message"
-      className="absolute bottom-4 left-1/2 -translate-x-1/2 inline-flex size-8 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-raised hover:bg-muted"
+      className="absolute bottom-4 left-1/2 -translate-x-1/2 inline-flex size-9 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-xs hover:bg-accent dark:border-input dark:bg-input/30 dark:hover:bg-input/50"
     >
       <ArrowDown className="size-4" />
     </button>
