@@ -186,7 +186,7 @@ export function ChatSuggestions({ suggestions, onPick }: { suggestions: string[]
           key={s}
           type="button"
           onClick={() => onPick(s)}
-          className="inline-flex max-w-full min-w-0 cursor-pointer items-center justify-center whitespace-normal rounded-full border border-border bg-background px-4 text-left text-sm font-medium text-foreground shadow-xs outline-none transition-all hover:bg-accent focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:border-input dark:bg-input/30 dark:hover:bg-input/50"
+          className="inline-flex max-w-full min-w-0 cursor-pointer items-center justify-center whitespace-normal rounded-full border border-border bg-background px-4 text-left text-sm font-medium text-foreground shadow-xs outline-hidden transition-all hover:bg-accent focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:border-input dark:bg-input/30 dark:hover:bg-input/50"
         >
           {s}
         </button>
@@ -196,8 +196,8 @@ export function ChatSuggestions({ suggestions, onPick }: { suggestions: string[]
 }
 
 /**
- * Starter questions above the reply bar of an empty chat: each sends at once. `compact` lines them up with the reply
- * bar of a compact chat (see ChatThread).
+ * Starter questions above the reply bar of an empty chat: each sends at once. They line up with a reply bar inset
+ * 20px, as ChatComposer's is; `compact` lines them up with one inset 16px, as in a chat docked beside a design.
  */
 export function ChatStarters({ prompts, onPick, compact }: { prompts: string[]; onPick: (text: string) => void; compact?: boolean }) {
   if (!prompts.length) return null;
@@ -239,12 +239,12 @@ const toolOf = (part: ChatPart) => part.toolName ?? part.type.replace(/^tool-/, 
 
 /**
  * A message laid out from its parts. Text is markdown (`components` and `newTab` as for ChatAnswer); thinking and tool
- * parts gather into one ChatSteps until text, a card or a file interrupts, so a turn reads chain, card, chain. A tool
- * shows as a step named by `toolLabel`, unless `card` returns something for it: then the card stands for it. `after`
- * may add something after a tool's step or card, such as a link to what the tool made. A data part (`data-…`) shows
- * only what `card` returns for it, asked by the part's type. Tools the provider ran, and parts it does not know, show
- * nothing. `streaming` says whether the message is still coming: once it is not (it finished, or the person stopped
- * it), no step shows as under way.
+ * parts gather into one ChatSteps until text, a card, something `after` a tool or a file interrupts, so a turn reads
+ * chain, card, chain. A tool shows as a step named by `toolLabel`, unless `card` returns something for it: then the
+ * card stands for it. `after` may add something after a tool's step or card, such as a link to what the tool made. A
+ * data part (`data-…`) shows only what `card` returns for it, asked by the part's type. Tools the provider ran, and
+ * parts it does not know, show nothing. `streaming` says whether the message is still coming: once it is not (it
+ * finished, or the person stopped it), no step shows as under way.
  */
 export function chatParts(message: ChatPartsMessage, o: {
   toolLabel: (tool: string) => string;
@@ -269,12 +269,14 @@ export function chatParts(message: ChatPartsMessage, o: {
     if (part.type === 'text') {
       if (part.text?.trim()) push(<ChatAnswer key={`${message.id}-text-${i}`} components={o.components} newTab={o.newTab}>{part.text}</ChatAnswer>);
     } else if (part.type === 'reasoning') {
-      // Consecutive thinking reads as one step; an empty one shows only while it may still fill.
+      // Consecutive thinking reads as one step, keyed by its first part so it keeps its state as more stream in; an
+      // empty one shows only while it may still fill.
+      const first = i;
       let text = part.text ?? '';
       let state = part.state;
       while (parts[i + 1]?.type === 'reasoning') { i++; text += parts[i].text ?? ''; state = parts[i].state; }
       const streaming = live && state === 'streaming';
-      if (text.trim() || streaming) steps.push({ kind: 'thinking', key: `r-${i}`, text, streaming });
+      if (text.trim() || streaming) steps.push({ kind: 'thinking', key: `r-${first}`, text, streaming });
     } else if (isTool(part)) {
       const tool = toolOf(part);
       if (part.providerExecuted || tool === 'code_execution') continue;

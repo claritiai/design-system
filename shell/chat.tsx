@@ -40,7 +40,8 @@ export function ChatHeader({ title, icon, onBack, backLabel = 'Back', backTitle,
 /**
  * The scrolling thread. It opens at the latest message and follows a streaming answer while the person stays at the
  * bottom; scrolled up, it stays put and offers a button back down. Answers take its full width when it is narrow, as
- * in a side panel. `compact` is the tighter chat docked beside a design: 13px text, 12px between messages.
+ * in a side panel. `compact` is the tighter chat docked beside a design: 12px between messages, inset 16px inside
+ * 16px gutters, and 13px as the thread's own text size (a message may set its own).
  */
 export function ChatThread({ children, compact }: { children: React.ReactNode; compact?: boolean }) {
   return (
