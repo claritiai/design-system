@@ -3,8 +3,8 @@
 // answer's markdown, one chain per turn of what the agent did (its thinking and its tools, on a thin rail), the
 // follow-up and starter chips, and the wait before the first word. chatParts lays a message out from its parts as the
 // AI SDK streams them: thinking and tool steps gather into one chain until text or a card interrupts. It knows no
-// tools: the app names each one (`toolLabel`) and may show a card for it (`card`).
-import { Brain, CheckCircle, ChevronDown, Loader2, XCircle } from 'lucide-react';
+// tools: the app names each one (`toolLabel`) and may show a card for it, or for one of its data parts (`card`).
+import { Brain, CheckCircle, ChevronDown, File as FileIcon, Loader2, XCircle } from 'lucide-react';
 import { memo, useEffect, useRef, useState } from 'react';
 import { Streamdown, type StreamdownProps } from 'streamdown';
 
@@ -24,10 +24,11 @@ export type ChatPartsMessage = { id: string; role: string; parts: ChatPart[] };
 
 /**
  * A link in an answer: a page of the same app opens where the chat is, any other in a new tab. The markdown's
- * sanitiser marks every link for a new tab, so the target is set here, not taken from it.
+ * sanitiser marks every link for a new tab, so the target is set here, not taken from it. With `newTab`, every link
+ * opens in a new tab.
  */
-function AnswerLink({ href, children, className, node: _node, target: _target, rel: _rel, ...props }: React.ComponentProps<'a'> & { node?: unknown }) {
-  const here = !!href && (href.startsWith('/') || href.startsWith('#')) && !href.startsWith('//');
+function AnswerLink({ href, children, className, newTab, node: _node, target: _target, rel: _rel, ...props }: React.ComponentProps<'a'> & { node?: unknown; newTab?: boolean }) {
+  const here = !newTab && !!href && (href.startsWith('/') || href.startsWith('#')) && !href.startsWith('//');
   return (
     <a
       {...props}
@@ -50,18 +51,22 @@ function AnswerTable(props: React.ComponentProps<'table'>) {
 }
 
 const ANSWER_COMPONENTS = { a: AnswerLink, table: AnswerTable } as StreamdownProps['components'];
+const NEW_TAB_COMPONENTS = { a: (props: React.ComponentProps<typeof AnswerLink>) => <AnswerLink {...props} newTab />, table: AnswerTable } as StreamdownProps['components'];
 
-/** An answer's text as markdown, streamed as it comes. `components` replaces how an element renders. */
+/**
+ * An answer's text as markdown, streamed as it comes. `components` replaces how an element renders. `newTab` opens
+ * every link in a new tab, a page of the same app too: for a chat beside work that leaving the page would lose.
+ */
 export const ChatAnswer = memo(
-  ({ children, components, className = '' }: { children: string; components?: StreamdownProps['components']; className?: string }) => (
+  ({ children, components, newTab, className = '' }: { children: string; components?: StreamdownProps['components']; newTab?: boolean; className?: string }) => (
     <Streamdown
       className={`size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_h1]:text-base [&_h2]:text-[15px] [&_h3]:text-sm [&_h1]:mt-4 [&_h2]:mt-4 [&_h3]:mt-3 ${className}`}
-      components={{ ...ANSWER_COMPONENTS, ...components }}
+      components={{ ...(newTab ? NEW_TAB_COMPONENTS : ANSWER_COMPONENTS), ...components }}
     >
       {children}
     </Streamdown>
   ),
-  (a, b) => a.children === b.children && a.components === b.components,
+  (a, b) => a.children === b.children && a.components === b.components && a.newTab === b.newTab,
 );
 ChatAnswer.displayName = 'ChatAnswer';
 
@@ -153,15 +158,15 @@ function ToolStep({ label, state }: { label: string; state: string }) {
   );
 }
 
-/** One turn's steps in order, joined by a thin rail: thinking, a tool, thinking again… */
+/** One turn's steps in order, joined by a thin rail: thinking, a tool, thinking again… `data-chat-steps` and `data-step` name them for an app's tests. */
 export function ChatSteps({ steps }: { steps: ChatStep[] }) {
   if (!steps.length) return null;
   return (
-    <div className="not-prose flex flex-col">
+    <div className="not-prose flex flex-col" data-chat-steps="">
       {steps.map((step, i) => {
         const last = i === steps.length - 1;
         return (
-          <div key={step.key} className={`relative ${last ? '' : 'pb-2'}`}>
+          <div key={step.key} className={`relative ${last ? '' : 'pb-2'}`} data-step={step.kind}>
             {last ? null : <span aria-hidden className="absolute bottom-[-1px] left-[7.5px] top-[19px] w-px bg-border" />}
             {step.kind === 'thinking' ? <Thinking text={step.text} streaming={step.streaming} /> : <ToolStep label={step.label} state={step.state} />}
           </div>
@@ -181,7 +186,7 @@ export function ChatSuggestions({ suggestions, onPick }: { suggestions: string[]
           key={s}
           type="button"
           onClick={() => onPick(s)}
-          className="h-auto max-w-full min-w-0 whitespace-normal rounded-full border border-border bg-card px-4 py-1.5 text-left text-[13px] text-foreground hover:bg-muted"
+          className="inline-flex max-w-full min-w-0 cursor-pointer items-center justify-center whitespace-normal rounded-full border border-border bg-background px-4 text-left text-sm font-medium text-foreground shadow-xs outline-none transition-all hover:bg-accent focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:border-input dark:bg-input/30 dark:hover:bg-input/50"
         >
           {s}
         </button>
@@ -190,18 +195,21 @@ export function ChatSuggestions({ suggestions, onPick }: { suggestions: string[]
   );
 }
 
-/** Starter questions above the reply bar of an empty chat: each sends at once. */
-export function ChatStarters({ prompts, onPick }: { prompts: string[]; onPick: (text: string) => void }) {
+/**
+ * Starter questions above the reply bar of an empty chat: each sends at once. `compact` lines them up with the reply
+ * bar of a compact chat (see ChatThread).
+ */
+export function ChatStarters({ prompts, onPick, compact }: { prompts: string[]; onPick: (text: string) => void; compact?: boolean }) {
   if (!prompts.length) return null;
   return (
-    <div className="w-full min-w-0 max-w-[720px] mx-auto px-5 pt-1 pb-1">
+    <div className={`w-full min-w-0 pt-1 pb-1 ${compact ? 'px-4' : 'max-w-[720px] mx-auto px-5'}`}>
       <div className="flex flex-wrap gap-1.5">
         {prompts.map((p) => (
           <button
             key={p}
             type="button"
             onClick={() => onPick(p)}
-            className="max-w-full min-w-0 rounded-lg border border-border px-3 py-1 text-left text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="max-w-full min-w-0 rounded-lg border border-border px-3 py-1 text-left text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             {p}
           </button>
@@ -211,16 +219,16 @@ export function ChatStarters({ prompts, onPick }: { prompts: string[]; onPick: (
   );
 }
 
-/** The wait after the person sends and before anything of the answer shows. */
-export function ChatWaiting({ messages, busy }: { messages: ChatPartsMessage[]; busy: boolean }) {
+/** The wait after the person sends and before anything of the answer shows, a step smaller in a compact chat. */
+export function ChatWaiting({ messages, busy, compact }: { messages: ChatPartsMessage[]; busy: boolean; compact?: boolean }) {
   if (!busy) return null;
   const last = messages[messages.length - 1];
   const showing = last?.role === 'assistant' && last.parts.some((p) =>
     p.type === 'step-start' ? false : p.type === 'reasoning' ? !!p.text?.trim() || p.state === 'streaming' : true);
   if (showing) return null;
   return (
-    <div className="flex items-center gap-2 py-2 text-sm text-muted-foreground">
-      <Loader2 aria-hidden className="size-4 shrink-0 animate-spin motion-reduce:animate-none" />
+    <div className={`flex items-center gap-2 py-2 text-muted-foreground ${compact ? 'text-xs' : 'text-sm'}`}>
+      <Loader2 aria-hidden className={`shrink-0 animate-spin motion-reduce:animate-none ${compact ? 'size-4' : 'size-5'}`} />
       <span>Thinking…</span>
     </div>
   );
@@ -230,16 +238,20 @@ const isTool = (part: ChatPart) => part.type.startsWith('tool-') || part.type ==
 const toolOf = (part: ChatPart) => part.toolName ?? part.type.replace(/^tool-/, '');
 
 /**
- * A message laid out from its parts. Text is markdown (`components` as for ChatAnswer); thinking and tool parts
- * gather into one ChatSteps until text, a card or a file interrupts, so a turn reads chain, card, chain. A tool shows
- * as a step named by `toolLabel`, unless `card` returns something for it: then the card stands for it. Tools the
- * provider ran, and parts it does not know, show nothing. `streaming` says whether the message is still coming: once
- * it is not (it finished, or the person stopped it), no step shows as under way.
+ * A message laid out from its parts. Text is markdown (`components` and `newTab` as for ChatAnswer); thinking and tool
+ * parts gather into one ChatSteps until text, a card or a file interrupts, so a turn reads chain, card, chain. A tool
+ * shows as a step named by `toolLabel`, unless `card` returns something for it: then the card stands for it. `after`
+ * may add something after a tool's step or card, such as a link to what the tool made. A data part (`data-…`) shows
+ * only what `card` returns for it, asked by the part's type. Tools the provider ran, and parts it does not know, show
+ * nothing. `streaming` says whether the message is still coming: once it is not (it finished, or the person stopped
+ * it), no step shows as under way.
  */
 export function chatParts(message: ChatPartsMessage, o: {
   toolLabel: (tool: string) => string;
   card?: (part: ChatPart, tool: string, index: number) => React.ReactNode;
+  after?: (part: ChatPart, tool: string, index: number) => React.ReactNode;
   components?: StreamdownProps['components'];
+  newTab?: boolean;
   streaming?: boolean;
 }): React.ReactNode[] {
   const live = o.streaming ?? true;
@@ -255,7 +267,7 @@ export function chatParts(message: ChatPartsMessage, o: {
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
     if (part.type === 'text') {
-      if (part.text?.trim()) push(<ChatAnswer key={`${message.id}-text-${i}`} components={o.components}>{part.text}</ChatAnswer>);
+      if (part.text?.trim()) push(<ChatAnswer key={`${message.id}-text-${i}`} components={o.components} newTab={o.newTab}>{part.text}</ChatAnswer>);
     } else if (part.type === 'reasoning') {
       // Consecutive thinking reads as one step; an empty one shows only while it may still fill.
       let text = part.text ?? '';
@@ -269,11 +281,21 @@ export function chatParts(message: ChatPartsMessage, o: {
       const card = o.card?.(part, tool, i);
       if (card) push(<div key={`${message.id}-card-${i}`} className="contents">{card}</div>);
       else steps.push({ kind: 'tool', key: `t-${i}`, label: o.toolLabel(tool), state: live || part.state?.startsWith('output') ? part.state ?? '' : 'stopped' });
+      const after = o.after?.(part, tool, i);
+      if (after) push(<div key={`${message.id}-after-${i}`} className="contents">{after}</div>);
+    } else if (part.type.startsWith('data-')) {
+      const card = o.card?.(part, part.type, i);
+      if (card) push(<div key={`${message.id}-data-${i}`} className="contents">{card}</div>);
     } else if (part.type === 'file') {
       if (part.mediaType?.startsWith('image/')) {
         push(<img key={`${message.id}-file-${i}`} src={part.url} alt={part.filename || 'Image'} className="max-w-full rounded-lg" />);
       } else if (part.filename) {
-        push(<span key={`${message.id}-file-${i}`} className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-muted px-2.5 py-1.5 text-xs text-muted-foreground">{part.filename}</span>);
+        push(
+          <span key={`${message.id}-file-${i}`} className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-muted px-2.5 py-1.5 text-xs text-muted-foreground">
+            <FileIcon aria-hidden className="size-3.5 shrink-0" />
+            {part.filename}
+          </span>,
+        );
       }
     }
   }
