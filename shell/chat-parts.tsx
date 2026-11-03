@@ -233,13 +233,16 @@ const toolOf = (part: ChatPart) => part.toolName ?? part.type.replace(/^tool-/, 
  * A message laid out from its parts. Text is markdown (`components` as for ChatAnswer); thinking and tool parts
  * gather into one ChatSteps until text, a card or a file interrupts, so a turn reads chain, card, chain. A tool shows
  * as a step named by `toolLabel`, unless `card` returns something for it: then the card stands for it. Tools the
- * provider ran, and parts it does not know, show nothing.
+ * provider ran, and parts it does not know, show nothing. `streaming` says whether the message is still coming: once
+ * it is not (it finished, or the person stopped it), no step shows as under way.
  */
 export function chatParts(message: ChatPartsMessage, o: {
   toolLabel: (tool: string) => string;
   card?: (part: ChatPart, tool: string, index: number) => React.ReactNode;
   components?: StreamdownProps['components'];
+  streaming?: boolean;
 }): React.ReactNode[] {
+  const live = o.streaming ?? true;
   const out: React.ReactNode[] = [];
   const steps: ChatStep[] = [];
   const flush = () => {
@@ -258,13 +261,14 @@ export function chatParts(message: ChatPartsMessage, o: {
       let text = part.text ?? '';
       let state = part.state;
       while (parts[i + 1]?.type === 'reasoning') { i++; text += parts[i].text ?? ''; state = parts[i].state; }
-      if (text.trim() || state === 'streaming') steps.push({ kind: 'thinking', key: `r-${i}`, text, streaming: state === 'streaming' });
+      const streaming = live && state === 'streaming';
+      if (text.trim() || streaming) steps.push({ kind: 'thinking', key: `r-${i}`, text, streaming });
     } else if (isTool(part)) {
       const tool = toolOf(part);
       if (part.providerExecuted || tool === 'code_execution') continue;
       const card = o.card?.(part, tool, i);
       if (card) push(<div key={`${message.id}-card-${i}`} className="contents">{card}</div>);
-      else steps.push({ kind: 'tool', key: `t-${i}`, label: o.toolLabel(tool), state: part.state ?? '' });
+      else steps.push({ kind: 'tool', key: `t-${i}`, label: o.toolLabel(tool), state: live || part.state?.startsWith('output') ? part.state ?? '' : 'stopped' });
     } else if (part.type === 'file') {
       if (part.mediaType?.startsWith('image/')) {
         push(<img key={`${message.id}-file-${i}`} src={part.url} alt={part.filename || 'Image'} className="max-w-full rounded-lg" />);
