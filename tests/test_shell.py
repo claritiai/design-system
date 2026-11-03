@@ -1,11 +1,12 @@
-"""The app shell (shell/) is layout only: it imports React, Next.js's link and image, react-dom and the icon set,
-and nothing from an app, so every Clariti app can install it as it is."""
+"""The app shell (shell/) is layout only: it imports React, Next.js's link and image, react-dom, the icon set and,
+for the chat, streamdown (an answer's markdown) and use-stick-to-bottom (the thread's scroll), and nothing from an
+app, so every Clariti app can install it as it is."""
 import re
 import unittest
 from pathlib import Path
 
 SHELL = Path(__file__).resolve().parent.parent / "shell"
-ALLOWED = {"react", "react-dom", "next/link", "next/image", "lucide-react"}
+ALLOWED = {"react", "react-dom", "next/link", "next/image", "lucide-react", "streamdown", "use-stick-to-bottom"}
 
 
 class Shell(unittest.TestCase):
