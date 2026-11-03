@@ -53,23 +53,33 @@ export function PromptInputAttachments({ children, className, ...props }: Omit<H
 /**
  * A file on the bar as Clariti's chat draws it: a picture as a thumbnail, anything else by its type, the name and
  * extension under it, and a button on hover that takes it off. `compact` is the smaller card of a chat docked beside
- * a design.
+ * a design. Outside a PromptInput, `onRemove` takes it off instead, and `href` opens it.
  */
-export function PromptInputAttachmentPreview({ data, compact, className }: { data: Attached; compact?: boolean; className?: string }) {
-  const attachments = usePromptInputAttachments();
+export function PromptInputAttachmentPreview({ data, compact, className, onRemove, href }: {
+  data: PromptInputFile & { id: string };
+  compact?: boolean;
+  className?: string;
+  onRemove?: () => void;
+  href?: string;
+}) {
+  const attachments = useContext(Attachments);
+  const takeOff = onRemove ?? (attachments ? () => attachments.remove(data.id) : undefined);
   const isImage = data.mediaType?.startsWith('image/') && data.url;
   const filename = data.filename || (isImage ? 'Image' : 'Attachment');
   const ext = filename.split('.').pop()?.toUpperCase() || '';
   return (
     <div className={cn(`group relative ${compact ? 'w-28' : 'w-36'} rounded-lg border border-border bg-muted/30 overflow-hidden`, className)}>
-      <button
-        type="button"
-        onClick={() => attachments.remove(data.id)}
-        className={`absolute ${compact ? 'top-1 right-1' : 'top-1.5 right-1.5'} z-10 p-0.5 rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80`}
-        aria-label="Remove attachment"
-      >
-        <XIcon className={compact ? 'w-3 h-3' : 'w-3.5 h-3.5'} />
-      </button>
+      {takeOff ? (
+        <button
+          type="button"
+          onClick={takeOff}
+          className={`absolute ${compact ? 'top-1 right-1' : 'top-1.5 right-1.5'} z-10 p-0.5 rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80`}
+          aria-label="Remove attachment"
+        >
+          <XIcon className={compact ? 'w-3 h-3' : 'w-3.5 h-3.5'} />
+        </button>
+      ) : null}
+      {href ? <a href={href} target="_blank" rel="noreferrer" aria-label={`Open ${filename}`} className="absolute inset-0" /> : null}
       {isImage ? (
         <div className="aspect-[4/3] w-full overflow-hidden">
           <img src={data.url} alt={filename} className="w-full h-full object-cover" />
