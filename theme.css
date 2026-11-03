@@ -12,8 +12,16 @@
    own local roles after it; it never gives one of these a value. Plain HTML pages and plugins do
    not need this file: they read tokens.css and plugin.css. */
 
-/* The app shell's classes (shell/), so an app that imports this file and the shell gets both. */
+/* The app shell's classes (shell/), so an app that imports this file and the shell gets both, and the classes of
+   streamdown, which draws a chat answer's markdown (shell/chat-parts.tsx). */
 @source "./shell";
+@source "../../streamdown/dist/*.js";
+
+/* A chat step under way shimmers (ChatShimmer). */
+@keyframes chat-shimmer {
+  from { background-position: 100% center; }
+  to { background-position: 0% center; }
+}
 
 @custom-variant dark (&:is(.dark *));
 

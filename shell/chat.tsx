@@ -2,9 +2,10 @@
 // The chat frame every Clariti app shares: the thread's header, a 720px thread column on a 14px rhythm, the
 // person's turns in a muted bubble, and a flat bordered reply bar with an ink send button. It knows nothing about
 // what answers: the app passes the messages and a form action.
-import { ArrowLeft, ArrowUp } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { ArrowDown, ArrowLeft, ArrowUp, Square } from 'lucide-react';
+import { useRef } from 'react';
 import { useFormStatus } from 'react-dom';
+import { StickToBottom, useStickToBottomContext } from 'use-stick-to-bottom';
 
 /** The thread's title row. `icon` is an element, so a server page can pass one. */
 export function ChatHeader({ title, icon, onBack, backLabel = 'Back', backTitle, pill, actions }: {
@@ -36,17 +37,32 @@ export function ChatHeader({ title, icon, onBack, backLabel = 'Back', backTitle,
   );
 }
 
-/** The scrolling thread. It opens at the latest message and follows each new one. Answers take its full width when it
- * is narrow, as in a side panel. */
+/**
+ * The scrolling thread. It opens at the latest message and follows a streaming answer while the person stays at the
+ * bottom; scrolled up, it stays put and offers a button back down. Answers take its full width when it is narrow, as
+ * in a side panel.
+ */
 export function ChatThread({ children }: { children: React.ReactNode }) {
-  const scroller = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    scroller.current?.scrollTo({ top: scroller.current.scrollHeight });
-  });
   return (
-    <div ref={scroller} className="flex-1 min-h-0 overflow-y-auto">
-      <div className="@container max-w-[720px] mx-auto w-full flex flex-col gap-3.5 py-5 px-5">{children}</div>
-    </div>
+    <StickToBottom className="relative flex-1 min-h-0 overflow-y-hidden" initial="smooth" resize="smooth" role="log">
+      <StickToBottom.Content className="@container max-w-[720px] mx-auto w-full flex flex-col gap-3.5 py-5 px-5">{children}</StickToBottom.Content>
+      <BackDown />
+    </StickToBottom>
+  );
+}
+
+function BackDown() {
+  const { isAtBottom, scrollToBottom } = useStickToBottomContext();
+  if (isAtBottom) return null;
+  return (
+    <button
+      type="button"
+      onClick={() => scrollToBottom()}
+      aria-label="Latest message"
+      className="absolute bottom-4 left-1/2 -translate-x-1/2 inline-flex size-8 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-raised hover:bg-muted"
+    >
+      <ArrowDown className="size-4" />
+    </button>
   );
 }
 
@@ -58,15 +74,18 @@ export function ChatMessage({ from, children }: { from: 'user' | 'assistant'; ch
   );
 }
 
-function Send() {
+function Send({ busy, onStop }: { busy?: boolean; onStop?: () => void }) {
   const { pending } = useFormStatus();
+  const button = 'inline-flex size-8 items-center justify-center rounded-control bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-20';
+  if (busy && onStop) {
+    return (
+      <button type="button" onClick={onStop} aria-label="Stop" title="Stop" className={button}>
+        <Square className="size-3 fill-current" />
+      </button>
+    );
+  }
   return (
-    <button
-      type="submit"
-      disabled={pending}
-      aria-label="Send"
-      className="inline-flex size-8 items-center justify-center rounded-control bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-20"
-    >
+    <button type="submit" disabled={pending || busy} aria-label="Send" className={button}>
       <ArrowUp className="size-4" />
     </button>
   );
@@ -74,14 +93,17 @@ function Send() {
 
 /**
  * The reply bar: a form posting `text` to `action`. Enter sends, Shift+Enter starts a new line, and the form
- * clears after its action. `large` is the opening composer of a new chat, `note` the line under it.
+ * clears after its action. `large` is the opening composer of a new chat, `note` the line under it. While an answer
+ * is coming (`busy`) nothing sends, and with `onStop` the send button stops the answer instead.
  */
-export function ChatComposer({ action, placeholder = 'Reply…', autoFocus, note, large }: {
+export function ChatComposer({ action, placeholder = 'Reply…', autoFocus, note, large, busy, onStop }: {
   action: (form: FormData) => void | Promise<void>;
   placeholder?: string;
   autoFocus?: boolean;
   note?: React.ReactNode;
   large?: boolean;
+  busy?: boolean;
+  onStop?: () => void;
 }) {
   const form = useRef<HTMLFormElement>(null);
   return (
@@ -100,13 +122,13 @@ export function ChatComposer({ action, placeholder = 'Reply…', autoFocus, note
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
               e.preventDefault();
-              if (e.currentTarget.value.trim()) form.current?.requestSubmit();
+              if (!busy && e.currentTarget.value.trim()) form.current?.requestSubmit();
             }
           }}
           className={`w-full resize-none bg-transparent px-3 pt-3 outline-none placeholder:text-muted-foreground/60 ${large ? 'min-h-20 text-sm' : 'min-h-9 text-[13px]'}`}
         />
         <div className="flex items-center justify-end px-2 pb-2">
-          <Send />
+          <Send busy={busy} onStop={onStop} />
         </div>
       </form>
       {note ? <p className="text-center text-[11px] text-muted-foreground/80 mt-2">{note}</p> : null}
