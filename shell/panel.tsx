@@ -3,7 +3,7 @@
 // width, and over the page when opened there. Crossing the width hands it back to the screen, so it collapses on the
 // way down and opens again on the way up. It stays mounted while hidden, so a chat keeps streaming. It knows nothing
 // about the chat: the app passes the panel's title, its header buttons and its body, and opens it from its own button
-// (useChatPanel) or from the edge chip.
+// (useChatPanel) or from the edge chip. With nothing beside it yet (`fill`), the same panel takes the whole row.
 import { PanelLeftClose, PanelRightClose } from 'lucide-react';
 import { createContext, useContext, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 
@@ -68,8 +68,15 @@ export function ChatPanelProvider({ dockAt = 'xl', children }: { dockAt?: Wide; 
  * (the chat open in it, say), the app's `actions` and the hide button. With `chip`, a hidden panel leaves a pill on
  * the page's edge that opens it again, `badge` beside its label (unread answers, say). Below the docking width the
  * panel covers the page, and a link clicked in it, Escape or a click on the page around it closes it.
+ *
+ * `header={false}` leaves out the header row, for a body that brings its own: that header then hides the panel with
+ * `useChatPanel().hide`. `fill` is for a row with no page beside the panel yet: the panel takes the whole row at every
+ * width, with no chip, scrim or hide button. Turning `fill` on or off keeps the same element, so a chat streaming in
+ * the panel carries on when a page appears beside it.
  */
-export function ChatPanel({ side = 'right', label, title, icon, actions, width = 400, hideLabel = 'Hide', chip, badge, children }: {
+export function ChatPanel({
+  side = 'right', label, title, icon, actions, width = 400, hideLabel = 'Hide', chip, badge, header = true, fill = false, children,
+}: {
   side?: 'left' | 'right';
   label: string;
   title: React.ReactNode;
@@ -79,16 +86,24 @@ export function ChatPanel({ side = 'right', label, title, icon, actions, width =
   hideLabel?: string;
   chip?: string;
   badge?: React.ReactNode;
+  header?: boolean;
+  fill?: boolean;
   children: React.ReactNode;
 }) {
   const { open, docked, dockAt, show, hide } = useChatPanel();
   const Hide = side === 'right' ? PanelRightClose : PanelLeftClose;
-  const panel = open === null ? FOLLOW[dockAt].panel : open ? `flex ${OVER[dockAt].panel}` : 'hidden';
+  const panel = fill
+    ? 'flex flex-1 min-w-0'
+    : `max-w-full shrink-0 border-border ${side === 'right' ? 'right-0 border-l' : 'left-0 border-r'} ${
+      open === null ? FOLLOW[dockAt].panel : open ? `flex ${OVER[dockAt].panel}` : 'hidden'
+    }`;
   const chipShows = open === null ? FOLLOW[dockAt].chip : open ? 'hidden' : 'inline-flex';
+  // Only a panel over the page closes on a link or Escape: docked or filling the row, it stays where it is.
+  const over = !fill && !docked;
   return (
     <>
-      {open ? <div aria-hidden onClick={hide} className={`absolute inset-0 z-20 bg-scrim ${OVER[dockAt].scrim}`} /> : null}
-      {chip ? (
+      {open && !fill ? <div aria-hidden onClick={hide} className={`absolute inset-0 z-20 bg-scrim ${OVER[dockAt].scrim}`} /> : null}
+      {chip && !fill ? (
         <button
           onClick={show}
           title={chip}
@@ -103,28 +118,32 @@ export function ChatPanel({ side = 'right', label, title, icon, actions, width =
       ) : null}
       <aside
         aria-label={label}
-        style={{ width }}
+        style={fill ? undefined : { width }}
         onClickCapture={(e) => {
-          if (!docked && (e.target as HTMLElement).closest('a[href]')) hide();
+          if (over && (e.target as HTMLElement).closest('a[href]')) hide();
         }}
         onKeyDown={(e) => {
-          if (e.key === 'Escape' && !docked) hide();
+          if (e.key === 'Escape' && over) hide();
         }}
-        className={`max-w-full shrink-0 flex-col min-h-0 bg-card border-border ${side === 'right' ? 'right-0 border-l' : 'left-0 border-r'} ${panel}`}
+        className={`flex-col min-h-0 bg-card ${panel}`}
       >
-        <div className="shrink-0 flex items-center gap-2 pl-4 pr-2 py-2 border-b border-border/50">
-          {icon ? <span className="shrink-0 flex text-ai-accent [&>svg]:size-3.5">{icon}</span> : null}
-          <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-foreground">{title}</span>
-          {actions ? <span className="shrink-0 flex items-center gap-0.5">{actions}</span> : null}
-          <button
-            onClick={hide}
-            title={hideLabel}
-            aria-label={hideLabel}
-            className="shrink-0 p-1.5 rounded-tight text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-          >
-            <Hide className="size-4" />
-          </button>
-        </div>
+        {header ? (
+          <div className="shrink-0 flex items-center gap-2 pl-4 pr-2 py-2 border-b border-border/50">
+            {icon ? <span className="shrink-0 flex text-ai-accent [&>svg]:size-3.5">{icon}</span> : null}
+            <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-foreground">{title}</span>
+            {actions ? <span className="shrink-0 flex items-center gap-0.5">{actions}</span> : null}
+            {fill ? null : (
+              <button
+                onClick={hide}
+                title={hideLabel}
+                aria-label={hideLabel}
+                className="shrink-0 p-1.5 rounded-tight text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              >
+                <Hide className="size-4" />
+              </button>
+            )}
+          </div>
+        ) : null}
         <div className="flex-1 min-h-0 flex flex-col">{children}</div>
       </aside>
     </>
