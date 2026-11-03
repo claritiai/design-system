@@ -72,7 +72,8 @@ export function ChatPanelProvider({ dockAt = 'xl', children }: { dockAt?: Wide; 
  * `header={false}` leaves out the header row, for a body that brings its own: that header then hides the panel with
  * `useChatPanel().hide`. `fill` is for a row with no page beside the panel yet: the panel takes the whole row at every
  * width, with no chip, scrim or hide button. Turning `fill` on or off keeps the same element, so a chat streaming in
- * the panel carries on when a page appears beside it.
+ * the panel carries on when a page appears beside it. `data-state` on the panel says whether it shows: `open` or
+ * `closed`.
  */
 export function ChatPanel({
   side = 'right', label, title, icon, actions, width = 400, hideLabel = 'Hide', chip, badge, header = true, fill = false, children,
@@ -90,7 +91,7 @@ export function ChatPanel({
   fill?: boolean;
   children: React.ReactNode;
 }) {
-  const { open, docked, dockAt, show, hide } = useChatPanel();
+  const { shown, open, docked, dockAt, show, hide } = useChatPanel();
   const Hide = side === 'right' ? PanelRightClose : PanelLeftClose;
   const panel = fill
     ? 'flex flex-1 min-w-0'
@@ -118,6 +119,7 @@ export function ChatPanel({
       ) : null}
       <aside
         aria-label={label}
+        data-state={fill || shown ? 'open' : 'closed'}
         style={fill ? undefined : { width }}
         onClickCapture={(e) => {
           if (over && (e.target as HTMLElement).closest('a[href]')) hide();
