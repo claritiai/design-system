@@ -65,9 +65,9 @@ export function ChatPanelProvider({ dockAt = 'xl', children }: { dockAt?: Wide; 
 
 /**
  * The panel, on the `side` of a `relative flex` row that holds the page, named `label`. Its header has `icon`, `title`
- * (the chat open in it, say), the app's `actions` and the hide button. With `chip`, a hidden panel leaves a pill on the page's edge that opens it again,
- * `badge` beside its label (unread answers, say). Below the docking width the panel covers the page, a link clicked in
- * it or Escape closes it, and so does a click on the page around it.
+ * (the chat open in it, say), the app's `actions` and the hide button. With `chip`, a hidden panel leaves a pill on
+ * the page's edge that opens it again, `badge` beside its label (unread answers, say). Below the docking width the
+ * panel covers the page, and a link clicked in it, Escape or a click on the page around it closes it.
  */
 export function ChatPanel({ side = 'right', label, title, icon, actions, width = 400, hideLabel = 'Hide', chip, badge, children }: {
   side?: 'left' | 'right';
