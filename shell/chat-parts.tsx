@@ -22,16 +22,19 @@ export type ChatPart = {
 };
 export type ChatPartsMessage = { id: string; role: string; parts: ChatPart[] };
 
-/** A link in an answer: a page of the same app opens where the chat is, any other in a new tab. */
-function AnswerLink({ href, children, className, node: _node, ...props }: React.ComponentProps<'a'> & { node?: unknown }) {
+/**
+ * A link in an answer: a page of the same app opens where the chat is, any other in a new tab. The markdown's
+ * sanitiser marks every link for a new tab, so the target is set here, not taken from it.
+ */
+function AnswerLink({ href, children, className, node: _node, target: _target, rel: _rel, ...props }: React.ComponentProps<'a'> & { node?: unknown }) {
   const here = !!href && (href.startsWith('/') || href.startsWith('#')) && !href.startsWith('//');
   return (
     <a
+      {...props}
       href={href}
       data-streamdown="link"
       className={`wrap-anywhere font-medium text-foreground underline decoration-border hover:decoration-foreground ${className ?? ''}`}
       {...(here ? {} : { target: '_blank', rel: 'noreferrer' })}
-      {...props}
     >
       {children}
     </a>
