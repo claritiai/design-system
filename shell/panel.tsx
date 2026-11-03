@@ -102,7 +102,8 @@ export function ChatPanel({
       open === null ? FOLLOW[dockAt].panel : open ? `flex ${OVER[dockAt].panel}` : 'hidden'
     }`;
   const chipShows = open === null ? FOLLOW[dockAt].chip : open ? 'hidden' : 'inline-flex';
-  // Only a panel over the page closes on a link or Escape: docked or filling the row, it stays where it is.
+  // Only a panel over the page closes on a link or Escape: docked or filling the row, it stays where it is. The chip
+  // sits on the scrim's layer, above a page's own overlays; the two never show together.
   const over = !fill && !docked;
   return (
     <>
@@ -111,7 +112,7 @@ export function ChatPanel({
         <button
           onClick={show}
           title={chip}
-          className={`absolute z-10 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-2 shadow-raised hover:bg-muted transition-colors ${
+          className={`absolute z-20 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-2 shadow-raised hover:bg-muted transition-colors ${
             chipAt === 'middle' ? 'top-1/2 -translate-y-1/2' : 'top-3'
           } ${side === 'right' ? 'right-3.5' : 'left-3.5'} ${chipShows}`}
         >
