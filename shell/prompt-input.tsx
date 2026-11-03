@@ -99,17 +99,11 @@ export function PromptInputAttachmentPreview({ data, compact, className, onRemov
   );
 }
 
-/** The menu item that opens the file picker. Inside PromptInputActionMenuContent. */
+/** The menu item that opens the file picker, and closes the menu so the page answers again once a file is picked. Inside PromptInputActionMenuContent. */
 export const PromptInputActionAddAttachments = ({ label = 'Add photos or files', ...props }: ComponentProps<typeof DropdownMenuItem> & { label?: string }) => {
   const attachments = usePromptInputAttachments();
   return (
-    <DropdownMenuItem
-      {...props}
-      onSelect={(e) => {
-        e.preventDefault();
-        attachments.openFileDialog();
-      }}
-    >
+    <DropdownMenuItem {...props} onSelect={() => attachments.openFileDialog()}>
       <ImageIcon className="mr-2 size-4" /> {label}
     </DropdownMenuItem>
   );
