@@ -197,8 +197,8 @@ export function ChatSuggestions({ suggestions, onPick }: { suggestions: string[]
 
 /**
  * Starter questions above the reply bar of an empty chat: `onPick` gets the one picked, to send at once or to fill a
- * bar with. They line up with a reply bar inset 20px, as ChatComposer's is; `compact` lines them up with one inset
- * 16px, as in a chat docked beside a design, and `flush` with an inline bar, edge to edge.
+ * bar with. They line up with a reply bar inset 20px, as Clariti's thread has it; `compact` lines them up with one
+ * inset 16px, as in a chat docked beside a design, and `flush` with a bar on a page, edge to edge.
  */
 export function ChatStarters({ prompts, onPick, compact, flush }: { prompts: string[]; onPick: (text: string) => void; compact?: boolean; flush?: boolean }) {
   if (!prompts.length) return null;
