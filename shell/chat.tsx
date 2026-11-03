@@ -132,20 +132,25 @@ function Send({ busy, onStop }: { busy?: boolean; onStop?: () => void }) {
 /**
  * The reply bar: a form posting `text` to `action`. Enter sends, Shift+Enter starts a new line, and the form
  * clears after its action. `large` is the opening composer of a new chat, `note` the line under it, `compact` the
- * bar of a compact chat (see ChatThread). While an answer is coming (`busy`) nothing sends, and with `onStop` the send
- * button stops the answer instead.
+ * bar of a compact chat (see ChatThread). `inline` is a bar on one row, for a page to start a chat from: `icon`, the
+ * field, the paperclip and send side by side, the field growing with its text. While an answer
+ * is coming (`busy`) nothing sends, and with `onStop` the send button stops the answer instead. `fieldRef` reaches the
+ * field, for an app that fills it in.
  *
  * With `onFiles`, files can come along: a paperclip picks them (`accept` as for a file input), and a file pasted or
  * dropped on the bar arrives the same way. The app keeps them and shows them in `attachments`, above the text;
  * `tools` sits beside the paperclip.
  */
-export function ChatComposer({ action, placeholder = 'Reply…', autoFocus, note, large, compact, busy, onStop, onFiles, accept, attachments, tools }: {
+export function ChatComposer({ action, placeholder = 'Reply…', autoFocus, note, large, compact, inline, icon, fieldRef, busy, onStop, onFiles, accept, attachments, tools }: {
   action: (form: FormData) => void | Promise<void>;
   placeholder?: string;
   autoFocus?: boolean;
   note?: React.ReactNode;
   large?: boolean;
   compact?: boolean;
+  inline?: boolean;
+  icon?: React.ReactNode;
+  fieldRef?: React.Ref<HTMLTextAreaElement>;
   busy?: boolean;
   onStop?: () => void;
   onFiles?: (files: File[]) => void;
@@ -161,51 +166,78 @@ export function ChatComposer({ action, placeholder = 'Reply…', autoFocus, note
     if (files.length && onFiles) onFiles(files);
     return files.length > 0;
   };
+  // An inline field grows with its text up to its max height, and drops back to one row once the form has sent.
+  const grow = (el: HTMLTextAreaElement) => { el.style.height = 'auto'; el.style.height = `${el.scrollHeight}px`; };
+  const send = inline ? async (data: FormData) => {
+    await action(data);
+    const el = form.current?.querySelector('textarea');
+    if (el) el.style.height = '';
+  } : action;
+  const field = (
+    <textarea
+      ref={fieldRef}
+      name="text"
+      required
+      autoFocus={autoFocus}
+      placeholder={placeholder}
+      rows={large ? 3 : 1}
+      onInput={inline ? (e) => grow(e.currentTarget) : undefined}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+          e.preventDefault();
+          if (!busy && e.currentTarget.value.trim()) form.current?.requestSubmit();
+        }
+      }}
+      className={`resize-none bg-transparent outline-none placeholder:text-muted-foreground/60 ${
+        inline ? 'min-w-0 flex-1 max-h-40 px-1.5 py-1.5 text-sm' : `w-full px-3 pt-3 ${large ? 'min-h-20 text-sm' : 'min-h-9 text-[13px]'}`
+      }`}
+    />
+  );
+  const clip = onFiles ? (
+    <>
+      <input ref={picker} type="file" multiple accept={accept} hidden onChange={(e) => { take(e.currentTarget.files); e.currentTarget.value = ''; }} />
+      <button
+        type="button"
+        onClick={() => picker.current?.click()}
+        aria-label="Attach files"
+        title="Attach files"
+        className="inline-flex size-8 shrink-0 items-center justify-center rounded-control text-muted-foreground hover:bg-muted hover:text-foreground"
+      >
+        <Paperclip className="size-4" />
+      </button>
+    </>
+  ) : null;
   return (
-    <div className={large ? 'w-full' : compact ? 'shrink-0 w-full px-4 pb-3 pt-1' : 'shrink-0 max-w-[720px] mx-auto w-full px-5 pb-4 pt-2'}>
+    <div className={large || inline ? 'w-full' : compact ? 'shrink-0 w-full px-4 pb-3 pt-1' : 'shrink-0 max-w-[720px] mx-auto w-full px-5 pb-4 pt-2'}>
       <form
         ref={form}
-        action={action}
+        action={send}
         onPaste={onFiles ? (e) => { if (take(e.clipboardData?.files)) e.preventDefault(); } : undefined}
         onDragOver={onFiles ? (e) => { if (e.dataTransfer.types.includes('Files')) { e.preventDefault(); setDragging(true); } } : undefined}
         onDragLeave={onFiles ? () => setDragging(false) : undefined}
         onDrop={onFiles ? (e) => { setDragging(false); if (take(e.dataTransfer.files)) e.preventDefault(); } : undefined}
-        className={`flex flex-col rounded-control border bg-card focus-within:border-muted-foreground/50 transition-colors ${dragging ? 'border-foreground' : 'border-border'}`}
+        className={`flex flex-col rounded-control border bg-card focus-within:border-muted-foreground/50 transition-colors ${inline ? 'shadow-hairline' : ''} ${dragging ? 'border-foreground' : 'border-border'}`}
       >
         {attachments ? <div className="flex flex-wrap gap-2 px-3 pt-3">{attachments}</div> : null}
-        <textarea
-          name="text"
-          required
-          autoFocus={autoFocus}
-          placeholder={placeholder}
-          rows={large ? 3 : 1}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
-              e.preventDefault();
-              if (!busy && e.currentTarget.value.trim()) form.current?.requestSubmit();
-            }
-          }}
-          className={`w-full resize-none bg-transparent px-3 pt-3 outline-none placeholder:text-muted-foreground/60 ${large ? 'min-h-20 text-sm' : 'min-h-9 text-[13px]'}`}
-        />
-        <div className="flex items-center gap-1 px-2 pb-2">
-          {onFiles ? (
-            <>
-              <input ref={picker} type="file" multiple accept={accept} hidden onChange={(e) => { take(e.currentTarget.files); e.currentTarget.value = ''; }} />
-              <button
-                type="button"
-                onClick={() => picker.current?.click()}
-                aria-label="Attach files"
-                title="Attach files"
-                className="inline-flex size-8 items-center justify-center rounded-control text-muted-foreground hover:bg-muted hover:text-foreground"
-              >
-                <Paperclip className="size-4" />
-              </button>
-            </>
-          ) : null}
-          {tools}
-          <span className="flex-1" />
-          <Send busy={busy} onStop={onStop} />
-        </div>
+        {inline ? (
+          <div className="flex items-end gap-1 py-1.5 pl-3 pr-1.5">
+            {icon ? <span className="flex h-8 shrink-0 items-center text-ai-accent [&>svg]:size-4">{icon}</span> : null}
+            {field}
+            {clip}
+            {tools}
+            <Send busy={busy} onStop={onStop} />
+          </div>
+        ) : (
+          <>
+            {field}
+            <div className="flex items-center gap-1 px-2 pb-2">
+              {clip}
+              {tools}
+              <span className="flex-1" />
+              <Send busy={busy} onStop={onStop} />
+            </div>
+          </>
+        )}
       </form>
       {note ? <p className="text-center text-[11px] text-muted-foreground/80 mt-2">{note}</p> : null}
     </div>
