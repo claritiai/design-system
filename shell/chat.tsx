@@ -36,7 +36,8 @@ export function ChatHeader({ title, icon, onBack, backLabel = 'Back', backTitle,
   );
 }
 
-/** The scrolling thread. It opens at the latest message and follows each new one. */
+/** The scrolling thread. It opens at the latest message and follows each new one. Answers take its full width when it
+ * is narrow, as in a side panel. */
 export function ChatThread({ children }: { children: React.ReactNode }) {
   const scroller = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -44,7 +45,7 @@ export function ChatThread({ children }: { children: React.ReactNode }) {
   });
   return (
     <div ref={scroller} className="flex-1 min-h-0 overflow-y-auto">
-      <div className="max-w-[720px] mx-auto w-full flex flex-col gap-3.5 py-5 px-5">{children}</div>
+      <div className="@container max-w-[720px] mx-auto w-full flex flex-col gap-3.5 py-5 px-5">{children}</div>
     </div>
   );
 }
@@ -53,7 +54,7 @@ export function ChatMessage({ from, children }: { from: 'user' | 'assistant'; ch
   return from === 'user' ? (
     <div className="ml-auto flex w-fit max-w-[80%] flex-col overflow-hidden rounded-lg bg-secondary px-4 py-3 text-sm text-foreground whitespace-pre-wrap">{children}</div>
   ) : (
-    <div className="flex w-full max-w-[80%] min-w-0 flex-col gap-2 text-sm text-foreground">{children}</div>
+    <div className="flex w-full max-w-full @xl:max-w-[80%] min-w-0 flex-col gap-2 text-sm text-foreground">{children}</div>
   );
 }
 
