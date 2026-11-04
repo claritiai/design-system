@@ -114,6 +114,16 @@ export function ChatPanel({
   // Only a panel over the page closes on a link or Escape: docked or filling the row, it stays where it is. The chip
   // sits on the scrim's layer, above a page's own overlays; the two never show together.
   const over = !fill && !docked;
+  // Over the page, Escape closes the panel wherever the focus is: sending a message disables the reply bar, which drops
+  // the focus out of the panel. A menu or dialog that answers Escape marks the key as handled, and only it closes.
+  useEffect(() => {
+    if (!over || !shown) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !e.defaultPrevented) hide();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [over, shown, hide]);
   return (
     <>
       {open && !fill ? <div aria-hidden onClick={hide} className={`absolute inset-0 z-20 bg-scrim ${OVER[dockAt].scrim}`} /> : null}
@@ -136,9 +146,6 @@ export function ChatPanel({
         style={fill ? undefined : { width }}
         onClickCapture={(e) => {
           if (over && (e.target as HTMLElement).closest('a[href]')) hide();
-        }}
-        onKeyDown={(e) => {
-          if (e.key === 'Escape' && over) hide();
         }}
         className={`flex-col min-h-0 bg-card ${panel}`}
       >
