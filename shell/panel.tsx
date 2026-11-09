@@ -144,6 +144,9 @@ export function ChatPanel({
   const key = typeof resizable === 'string' ? resizable : null;
   const [mine, setMine] = useState<number | null>(null);
   const latest = useRef<number | null>(null);
+  // A drag under way, ended here too if the handle goes mid-drag (the window narrows, the page changes), so the page
+  // never keeps its text unselectable.
+  const ending = useRef<(() => void) | null>(null);
   useEffect(() => {
     if (!key) return;
     try {
@@ -184,12 +187,14 @@ export function ChatPanel({
       setMine(value);
     };
     const end = () => {
+      ending.current = null;
       edge.removeEventListener('pointermove', move);
       edge.removeEventListener('pointerup', end);
       edge.removeEventListener('pointercancel', end);
       document.body.style.removeProperty('user-select');
       if (latest.current !== null) keep(latest.current);
     };
+    ending.current = end;
     edge.addEventListener('pointermove', move);
     edge.addEventListener('pointerup', end);
     edge.addEventListener('pointercancel', end);
@@ -205,6 +210,7 @@ export function ChatPanel({
     setMine(value);
     keep(value);
   };
+  useEffect(() => () => ending.current?.(), [grip]);
   const handle = grip ? (
     <div className="relative z-10 w-0 shrink-0">
       <div

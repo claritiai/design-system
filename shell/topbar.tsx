@@ -57,12 +57,13 @@ export function TopBar({ homeHref, homeLabel = 'Clariti home', product, top, act
             >
               {tab.label}
               {tab.dot ? (
-                <span role="status" title={tab.dot} className="relative flex size-1.5">
-                  <span aria-hidden className="absolute inset-0 animate-ping rounded-full bg-ai-accent opacity-60" />
-                  <span aria-hidden className="relative size-1.5 rounded-full bg-ai-accent" />
-                  <span className="sr-only">{tab.dot}</span>
+                <span aria-hidden title={tab.dot} className="relative flex size-1.5">
+                  <span className="absolute inset-0 motion-safe:animate-ping rounded-full bg-ai-accent opacity-60" />
+                  <span className="relative size-1.5 rounded-full bg-ai-accent" />
                 </span>
               ) : null}
+              {/* Always there, so a screen reader announces the dot's words when they come. */}
+              <span role="status" className="sr-only">{tab.dot ?? ''}</span>
             </Link>
           ) : (
             <span
