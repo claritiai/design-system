@@ -182,7 +182,11 @@ export function ChatPanel({
     const edge = e.currentTarget;
     const row = rowOf(edge);
     if (!row.width) return;
-    edge.setPointerCapture(e.pointerId);
+    // A cover over the whole window while the person drags, so a frame on the page (a PDF, say) cannot take the
+    // pointer and leave the drag without its end.
+    const cover = document.createElement('div');
+    cover.style.cssText = 'position:fixed;inset:0;z-index:2147483647;cursor:col-resize;touch-action:none';
+    document.body.append(cover);
     document.body.style.userSelect = 'none';
     const move = (ev: PointerEvent) => {
       const value = within((side === 'left' ? ev.clientX - row.left : row.right - ev.clientX) / row.width, row.width);
@@ -191,16 +195,19 @@ export function ChatPanel({
     };
     const end = () => {
       ending.current = null;
-      edge.removeEventListener('pointermove', move);
-      edge.removeEventListener('pointerup', end);
-      edge.removeEventListener('pointercancel', end);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', end);
+      window.removeEventListener('pointercancel', end);
+      window.removeEventListener('blur', end);
+      cover.remove();
       document.body.style.removeProperty('user-select');
       if (latest.current !== null) keep(latest.current);
     };
     ending.current = end;
-    edge.addEventListener('pointermove', move);
-    edge.addEventListener('pointerup', end);
-    edge.addEventListener('pointercancel', end);
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', end);
+    window.addEventListener('pointercancel', end);
+    window.addEventListener('blur', end);
   };
   const nudge = (e: React.KeyboardEvent<HTMLDivElement>) => {
     const by = e.key === 'ArrowLeft' ? -STEP : e.key === 'ArrowRight' ? STEP : 0;
