@@ -163,12 +163,19 @@ export function ChatPanel({
   };
   // Within what both sides need on a row this wide.
   const within = (value: number, row: number) => Math.min(Math.max(value, LEAST / row, 0.15), 1 - LEAST_PAGE / row, 0.85);
-  const rowOf = (el: HTMLElement) => el.parentElement!.parentElement!.getBoundingClientRect();
+  // The row the panel and the page share: the handle's wrapper's parent, or the first ancestor with a box of its own
+  // when the app wraps the panel in an element with display: contents.
+  const rowOf = (el: HTMLElement) => {
+    let row = el.parentElement!.parentElement!;
+    while (row.parentElement && getComputedStyle(row).display === 'contents') row = row.parentElement;
+    return row.getBoundingClientRect();
+  };
   const drag = (e: React.PointerEvent<HTMLDivElement>) => {
     if (e.button !== 0) return;
     e.preventDefault();
     const edge = e.currentTarget;
     const row = rowOf(edge);
+    if (!row.width) return;
     edge.setPointerCapture(e.pointerId);
     document.body.style.userSelect = 'none';
     const move = (ev: PointerEvent) => {
@@ -192,6 +199,7 @@ export function ChatPanel({
     if (!by) return;
     e.preventDefault();
     const row = rowOf(e.currentTarget);
+    if (!row.width) return;
     const now = aside.current ? aside.current.getBoundingClientRect().width / row.width : (part ?? 0.5);
     const value = within(now + (side === 'left' ? by : -by), row.width);
     setMine(value);
