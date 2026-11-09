@@ -5,8 +5,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-/** One of the app's pages. A disabled tab is greyed, with a short `tag` beside its label and `title` on hover. */
-export type TopBarTab = { href?: string; label: string; active?: boolean; disabled?: boolean; tag?: string; title?: string };
+/**
+ * One of the app's pages. A disabled tab is greyed, with a short `tag` beside its label and `title` on hover. `dot`
+ * puts a pulsing dot after the label, named by its text: something under way on that page (an answer coming, say).
+ */
+export type TopBarTab = { href?: string; label: string; active?: boolean; disabled?: boolean; tag?: string; title?: string; dot?: string };
 
 /**
  * One line on top: the mark (and, from `sm`, the app's name) linking home, then `top` after a slash (the app's
@@ -53,6 +56,14 @@ export function TopBar({ homeHref, homeLabel = 'Clariti home', product, top, act
               }`}
             >
               {tab.label}
+              {tab.dot ? (
+                <span aria-hidden title={tab.dot} className="relative flex size-1.5">
+                  <span className="absolute inset-0 motion-safe:animate-ping rounded-full bg-ai-accent opacity-60" />
+                  <span className="relative size-1.5 rounded-full bg-ai-accent" />
+                </span>
+              ) : null}
+              {/* Always there, so a screen reader announces the dot's words when they come. */}
+              <span role="status" className="sr-only">{tab.dot ?? ''}</span>
             </Link>
           ) : (
             <span
