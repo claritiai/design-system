@@ -88,7 +88,8 @@ export function ChatPanelProvider({ dockAt = 'xl', startOpen = true, children }:
  * `share` docks the panel at that part of the row (0.5 for half) instead of `width`, never narrower than 320px and
  * leaving the page at least 360px. `resizable` puts a handle on the docked panel's inner edge: dragging it, or the
  * arrow keys on it, set the share, and a double click puts the app's back. A string names the browser storage the
- * person's share is kept under, so it lasts. Over the page, below the docking width, the panel keeps `width`.
+ * person's share is kept under, so it lasts; a different string (another layout of the same row) keeps a share of its
+ * own. Over the page, below the docking width, the panel keeps `width`.
  *
  * Opened over the page, the panel takes the focus, so a person can type straight away: the reply bar (a textarea named
  * `message`) takes it, or the panel's first button while an answer streams and the bar is disabled. Docked, the focus
@@ -148,11 +149,13 @@ export function ChatPanel({
   // never keeps its text unselectable.
   const ending = useRef<(() => void) | null>(null);
   useEffect(() => {
-    if (!key) return;
+    // A new key is a new layout (a third pane beside the page, say): its own kept share, or the app's.
+    let kept: number | null = null;
     try {
-      const kept = Number(window.localStorage.getItem(key));
-      if (kept > 0 && kept < 1) setMine(kept);
+      const value = key ? Number(window.localStorage.getItem(key)) : NaN;
+      if (value > 0 && value < 1) kept = value;
     } catch { /* storage blocked: the app's share stands */ }
+    setMine(kept);
   }, [key]);
   const part = mine ?? share ?? null;
   const docks = !fill && docked && shown;

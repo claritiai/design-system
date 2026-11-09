@@ -34,7 +34,7 @@ function AnswerLink({ href, children, className, newTab, node: _node, target: _t
       {...props}
       href={href}
       data-streamdown="link"
-      className={`wrap-anywhere font-medium text-foreground underline decoration-border hover:decoration-foreground ${className ?? ''}`}
+      className={`wrap-anywhere font-medium text-foreground underline decoration-muted-foreground/50 underline-offset-2 hover:decoration-foreground ${className ?? ''}`}
       {...(here ? {} : { target: '_blank', rel: 'noreferrer' })}
     >
       {children}
