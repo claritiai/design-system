@@ -1,0 +1,18 @@
+/* Clariti's 3D viewer theme. Every colour comes from the design system: the palette
+ * (/brand/tokens.css) and the 3D palette (/brand/viewer.css), copied from the installed
+ * claritiai/design-system and read by every viewer through this file. What stays here are the
+ * plain-HTML names the viewers use for the design system's shadow, radii and faces; the mono face
+ * is served from /brand/fonts.css, so no viewer asks a font service. */
+@import url("/brand/tokens.css");
+@import url("/brand/viewer.css");
+@import url("/brand/fonts.css");
+:root{
+  --shadow:0 4px 12px var(--c-shadow);
+  --r-tight:6px;--r-control:10px;--r-surface:16px;
+  --mono:'IBM Plex Mono',ui-monospace,'Cascadia Mono',Consolas,Menlo,monospace;
+  --sans:'Helvetica Neue',Helvetica,Arial,sans-serif;
+  color-scheme:light;
+}
+:root[data-theme=dark]{
+  color-scheme:dark;
+}

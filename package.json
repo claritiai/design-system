@@ -1,8 +1,8 @@
 {
   "name": "@clariti/design-system",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": true,
-  "description": "Clariti's colour palette, Tailwind theme, form controls, 3D palette, plugin base, slides, brand assets, the app shell (sidebar, top bar, chat frame, chat panel and chat parts) and the design workspace (the viewer with its Parameters and Results pane, and the parts those panes are built from).",
+  "description": "Clariti's colour palette, Tailwind theme, form controls, 3D palette, the shared 3D look (viewer-theme), plugin base, slides, brand assets, the app shell (sidebar, top bar, chat frame, chat panel and chat parts) and the design workspace (the viewer with its Parameters and Results pane, and the parts those panes are built from).",
   "license": "UNLICENSED",
   "repository": "github:claritiai/design-system",
   "files": [
@@ -16,6 +16,7 @@
     "fonts/",
     "brand/",
     "templates/",
+    "viewer-theme/",
     "shell/",
     "workspace/",
     "dist/"
