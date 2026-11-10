@@ -2,8 +2,9 @@
 
 The colour palette, the shared base styles, the app shell and the brand assets that every Clariti
 product shares. This repository holds the foundation: the palette, a Tailwind theme for the apps,
-the sidebar, top bar and chat frame the apps share, a plain CSS base for the plugins, and the assets. Product
-components stay in the product that renders them.
+the sidebar, top bar and chat frame the apps share, the frame of a design workspace and the parts of
+its panes, a plain CSS base for the plugins, and the assets. Product components stay in the product
+that renders them.
 
 | Path | What it is |
 | --- | --- |
@@ -15,6 +16,7 @@ components stay in the product that renders them.
 | [`slides.css`](slides.css), [`templates/deck.html`](templates/deck.html) | For presentations: a 16:9 deck written as one HTML page, read on screen and printed to PDF one slide per page. The template shows every layout; [`docs/slides.md`](docs/slides.md) says when to use which. No colour of its own. |
 | [`fonts.css`](fonts.css), [`fonts/`](fonts) | IBM Plex Mono, the mono face, in 400, 500 and 600, for each product to serve itself (no font service). Helvetica Neue, the face for words, is the system's. SIL Open Font License 1.1. |
 | [`shell/`](shell) | For the Clariti apps (Next.js, React, Tailwind 4): the sidebar (lockup, collapse, the app's switch and links, recent chats, the person), the top bar for an app framed from the top instead (the mark and the app's name, the app's switch, its actions and the person on one line, and its pages as tabs underneath that scroll sideways at phone width, a tab with a dot while something is under way on it) the chat frame (header and thread), Clariti's chat turns and reply bar (from AI Elements: the person's bubble, the reply bar's files, text, tools menu and send or stop, laid out by the app) and the chat panel (docked beside the page on a wide window, collapsed below it to the app's button or an edge chip, and over the page when opened there, where it takes the focus for the reply bar; filling the row while there is no page beside it yet, and without its own header row when the chat brings one; docked at a share of the row, half say, with a handle the person drags and the share they chose kept; the edge chip at the top of the edge or halfway down it) and the chat parts, taken from Clariti's chat (an answer's markdown, one chain per turn of the agent's thinking and tools, follow-up and starter chips, the wait before the first word, the thread that follows a streaming answer, a stop button, files picked, pasted or dropped on the reply bar, a compact layout for a chat docked beside a design, and `chatParts`, which lays a message out from the AI SDK's parts and asks the app to name its tools and draw its own cards, for a tool or a data part, with something after a tool's step if it likes, and can open every link in a new tab). Layout only: each app passes its links or tabs, chats, labels and account menu. Needs `next`, `react` and `lucide-react`, and for the chat `streamdown`, `use-stick-to-bottom`, `@radix-ui/react-dropdown-menu` and `tailwind-merge`; the app serves `brand/` at `/brand/`. |
+| [`workspace/`](workspace) | For a design workspace in a Clariti app (Next.js, React, Tailwind 4): the frame (`WorkspaceFrame`: the 3D view in the middle and a right pane with a Parameters tab and a Results tab, a handle that hides the pane, a chip on the viewer's edge that brings it back with a count, the stats under the viewer while the pane is open and a pill over it while it is hidden; the app's header, a panel docked left of the viewer and the app's dialogs go in as slots, so the frame works with none of them; `useWorkspacePane` keeps the pane open or hidden in the browser's storage), the chrome over a drawing in the viewer (the view switch, the notice line, the zone legend and the zone palette), the Results tab's chip, and the parts the panes are built from: a parameter row with its default mark, select, segmented control, number field, measure (tick, slider and value), collapsible section, input, slider, badge and utilisation bar. Layout only: the app passes every value, label and result, and keeps its own rules. Import from `@clariti/design-system/workspace`, or one part by its file (`@clariti/design-system/workspace/select`). Needs `react`, `lucide-react`, `tailwind-merge` and `@radix-ui/react-select`. |
 | [`brand/`](brand) | The Clariti lockups (ink, paper), the mark (ink, paper) and the favicon. |
 | [`dist/tokens.json`](dist/tokens.json) | The palette as JSON, for code that cannot read CSS (PDF generators, Python). Generated. |
 | [`docs/roles.md`](docs/roles.md) | Which role means what, and the rules for using them. |
@@ -42,7 +44,7 @@ Pick the row that matches how the product renders.
 | The product is | It reads |
 | --- | --- |
 | A page inside the Clariti application | Nothing extra: it uses Clariti's components and utilities, which already read this repository. |
-| A separate Tailwind 4 app | Install it like Clariti does, then `@import` `tokens.css`, `theme.css` and `controls.css` from the package after `tailwindcss`, and load `fonts/` with the framework's font loader as `--font-plex-mono` (or serve `fonts.css`). Its components then use the same utility names as Clariti's. For Clariti's sidebar or top bar and its chat frame, add `transpilePackages: ['@clariti/design-system']` to `next.config` and import them from `@clariti/design-system/shell`; `theme.css` already points Tailwind at their classes. |
+| A separate Tailwind 4 app | Install it like Clariti does, then `@import` `tokens.css`, `theme.css` and `controls.css` from the package after `tailwindcss`, and load `fonts/` with the framework's font loader as `--font-plex-mono` (or serve `fonts.css`). Its components then use the same utility names as Clariti's. For Clariti's sidebar or top bar and its chat frame, add `transpilePackages: ['@clariti/design-system']` to `next.config` and import them from `@clariti/design-system/shell`, and the design workspace from `@clariti/design-system/workspace`; `theme.css` already points Tailwind at their classes. |
 | A plain HTML plugin or page, no React or Tailwind | Fetch `tokens.css`, `plugin.css` and `fonts.css` with its `fonts/` folder (and `controls.css` once it has a slider or check box) when the plugin is built and bundle them, then the plugin's own stylesheet. That stylesheet keeps the plugin's own components and names the `--c-*` roles and `--plugin-*` variables. Take the logos from `brand/` the same way. The Revit panel's `index.html` shows the order. |
 | A 3D view | `tokens.css`, then `viewer.css`, and [`docs/3d.md`](docs/3d.md) for how the view behaves. Inside Clariti, the shared viewer theme already loads both. |
 | A presentation | Copy [`templates/deck.html`](templates/deck.html), keep the slides it needs, and print it to PDF. [`docs/slides.md`](docs/slides.md) covers the layouts and the rules. |
@@ -60,6 +62,7 @@ This repository is public, so it holds only the foundation:
 - the base styles for plain HTML pages and plugins (`plugin.css`);
 - the presentation styles and the deck template (`slides.css`, `templates/`);
 - the app shell (`shell/`): the sidebar, the top bar, the chat frame, the chat panel and the chat parts, layout only;
+- the design workspace (`workspace/`): the frame around a design's 3D view and the parts of its panes, layout only;
 - the Clariti logos (`brand/`);
 - the roles doc, and the tooling that builds and tests all of the above.
 
@@ -75,7 +78,9 @@ It never holds:
 stylesheets, the shell, the tooling or the workflow use a word from a short deny-list (wording about what is
 coming next, and the manufacturer names that Clariti's product data is organised by, kept there as
 hashes), or contain something shaped like a key or a token. `tests/test_shell.py` fails when the shell imports
-anything but React, Next.js's link and image, react-dom and the icon set.
+anything but React, Next.js's link and image, react-dom and the icon set. `tests/test_workspace.py` fails when
+the workspace imports anything but React, the icon set, Radix's select and the shell's class joiner, or names a
+product family.
 
 ## Change a colour
 

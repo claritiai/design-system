@@ -3,10 +3,9 @@
 // them, so the reply bar renders the same in every app. Internal to the shell: the app imports the reply bar.
 import * as Menu from '@radix-ui/react-dropdown-menu';
 import type { ComponentProps } from 'react';
-import { twMerge } from 'tailwind-merge';
+import { cn } from './cn';
 
-/** Joins class names; a later class wins over an earlier one of the same kind. */
-export const cn = (...classes: (string | false | null | undefined)[]) => twMerge(classes.filter(Boolean).join(' '));
+export { cn };
 
 const BUTTON = "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive";
 const BUTTON_VARIANT = {
