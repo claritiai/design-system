@@ -111,6 +111,42 @@ class Viewer(unittest.TestCase):
                     self.assertNotIn(value, accents)
 
 
+class ViewerTheme(unittest.TestCase):
+    """viewer-theme/: the white card model every 3D page shares (docs/3d.md), served by each product at
+    /viewer-theme/. It reads the palette, the 3D palette and the faces where a product serves this package
+    (/brand/), names only roles they declare, and writes no colour of its own."""
+    FILES = ("model.css", "tokens.css", "theme.js", "studio.js")
+
+    def text(self, name):
+        return (ROOT / "viewer-theme" / name).read_text(encoding="utf-8")
+
+    def test_reads_the_palette_and_faces_where_a_product_serves_them(self):
+        served = re.findall(r'@import url\("/brand/([\w.-]+)"\)', self.text("tokens.css"))
+        self.assertEqual(served, ["tokens.css", "viewer.css", "fonts.css"])
+        self.assertIn('@import url("/viewer-theme/tokens.css")', self.text("model.css"))
+
+    def test_names_only_declared_roles(self):
+        light, dark = build.themes(CSS)
+        blocks = build.blocks((ROOT / "viewer.css").read_text(encoding="utf-8"))
+        own = set(re.findall(r"(--[\w-]+)\s*:", self.text("tokens.css")))
+        scene = {*blocks[":root"], *own}
+        for name in self.FILES:
+            text = self.text(name)
+            # A stylesheet names a role as var(--role); the scripts as viewerColor('role') or a material's role.
+            named = {*re.findall(r"var\((--[\w-]+)\)", text), *("--" + r for r in re.findall(r"""(?:viewerColor\(|matte\(|\),\s*)'([\w-]+)'""", text))}
+            with self.subTest(file=name):
+                palette = {r for r in named if r.startswith("--c-")}
+                self.assertEqual(sorted(r for r in palette if r[4:] not in light or r[4:] not in dark), [])
+                self.assertEqual(sorted(named - palette - scene), [])
+            if name == "studio.js":
+                self.assertTrue({"--model-card", "--model-shade", "--material-steel", "--c-ink", "--light-sky"} <= named)
+
+    def test_write_no_colour(self):
+        for name in self.FILES:
+            with self.subTest(file=name):
+                self.assertEqual(re.findall(r"#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?|oklch|oklab)\(", self.text(name)), [])
+
+
 class Type(unittest.TestCase):
     """One pair of faces everywhere: the Tailwind theme and the plugin base name the same families."""
 
@@ -150,7 +186,7 @@ class Package(unittest.TestCase):
         import json
         files = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))["files"]
         for name in ("tokens.css", "theme.css", "controls.css", "viewer.css", "plugin.css", "slides.css", "fonts.css",
-                     "fonts/", "brand/", "templates/", "dist/"):
+                     "fonts/", "brand/", "templates/", "viewer-theme/", "dist/"):
             self.assertIn(name, files)
 
 
