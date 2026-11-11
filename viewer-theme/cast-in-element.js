@@ -1,6 +1,6 @@
 import { initialViewerTheme, isViewerThemeMessage, refreshViewerMaterials, viewerColor, bindViewerMaterial } from '/viewer-theme/theme.js';
 import { MODEL_FOV, aimSun, modelLights, modelMaterials, modelRenderer, outlined, shadowGround } from '/viewer-theme/studio.js';
-import { loadMesh } from './meshes.js';
+import { loadMesh } from './cast-in-element-meshes.js';
 import {
   clearGroup, declutter as declutterTags, dimLine as dimPart, fitPose as fitPart, labelMaker, layoutForLens, lensRoom as lensRoomOf,
   renderLens as lensPart, spread as spreadPart,

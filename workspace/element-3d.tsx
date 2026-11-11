@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * A precast element with products cast into one face, in 3D: the shared page `/viewer-theme/cast-in-element/` (served
+ * A precast element with products cast into one face, in 3D: the shared page `/viewer-theme/cast-in-element.html` (served
  * by the host with the rest of viewer-theme) in a frame, sent the family's scene and listened to. The family builds the
  * scene from its engine's view entry; this part only carries it and reports what the engineer does: a product picked,
  * the group of products dragged on the face (by dx, dy mm, once, on release), an edge dragged (its distance to the
@@ -10,7 +10,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { DEFAULT_MARK_TEXT } from './default-mark';
 
-export const ELEMENT_3D_URL = '/viewer-theme/cast-in-element/index.html';
+export const ELEMENT_3D_URL = '/viewer-theme/cast-in-element.html';
 const THEME_MESSAGE = 'clariti-viewer-theme';
 
 export type Element3dSide = 'x_minus' | 'x_plus' | 'y_minus' | 'y_plus';
