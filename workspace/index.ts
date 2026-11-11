@@ -22,3 +22,9 @@ export { ASSUMED_FIELD, DEFAULT_MARK_TEXT, DefaultMark, type DefaultMarkKind } f
 export { PropRow, type PropRowProps } from './prop-row';
 export { UtilizationBar } from './utilization-bar';
 export { getUtilizationColor, getUtilizationStrokeColor, getUtilizationTextColor } from './utilization-colors';
+export {
+  RequirementGroups, ResultBar, ResultCard, ResultChips, ResultConditions, ResultMark, ResultMessages, ResultNote, ResultOptions, ResultVerdict,
+  ResultsSubTabs, type RequirementGroup, type ResultCardProps, type ResultChip, type ResultOption, type ResultOptionGroup,
+} from './results-parts';
+export { ChoiceField } from './choice-field';
+export { ELEMENT_3D_URL, Element3d, type Element3dProps, type Element3dScene, type Element3dSide } from './element-3d';

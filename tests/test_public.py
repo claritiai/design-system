@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parent.parent
 #: Everything a reader sees, except the generated export, the logos and these tests.
 SCANNED = sorted([ROOT / "README.md", *ROOT.glob("docs/**/*.md"), *ROOT.glob("*.css"),
                   *ROOT.glob("tools/*.py"), *ROOT.glob("templates/*.html"), *ROOT.glob("shell/*.ts*"), *ROOT.glob("workspace/*.ts*"),
-                  *ROOT.glob("viewer-theme/*"),
+                  *(p for p in ROOT.glob("viewer-theme/**/*") if p.is_file()),
                   *ROOT.glob(".github/workflows/*.yml")])
 #: Wording about what is coming next. The files describe what exists.
 AHEAD = {"future", "roadmap", "planned", "upcoming", "soon"}

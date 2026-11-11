@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Element in 3D</title>
+  <link rel="stylesheet" href="/viewer-theme/model.css">
+  <style>
+    body{user-select:none}
+    canvas.gl{position:absolute;inset:0;width:100%;height:100%}
+    body[data-hover=product] canvas.gl{cursor:grab}
+    body[data-hover^=edge] canvas.gl{cursor:ew-resize}
+    body[data-hover=edge-y] canvas.gl{cursor:ns-resize}
+    body[data-dragging=product]{cursor:grabbing}
+    .tag.caption{color:var(--viewer-muted);box-shadow:none;font-weight:400;background:transparent;border:0;font-family:var(--sans)}
+    .tag.name{font:700 11px var(--sans)}
+    .tag.name.selected{background:var(--c-ink);color:var(--c-on-ink);border-color:var(--c-ink)}
+    .tag.load{color:var(--c-ink-2)}
+    .tag.assumed,.tag.dim.assumed{color:var(--c-warn);border-color:var(--c-warn-line);background:color-mix(in srgb,var(--c-warn-bg) 92%,transparent)}
+    .tag.open{color:var(--c-error-icon);border-color:transparent;background:transparent;box-shadow:none;font:600 10.5px var(--sans)}
+    .mark{font:600 10px var(--sans);color:var(--c-warn);background:var(--c-warn-bg);border-radius:999px;padding:0 6px;margin-left:5px}
+    .lens{position:absolute;z-index:4;border-radius:var(--r-surface);border:1px solid var(--c-line-strong);box-shadow:var(--shadow);pointer-events:none}
+    .lens[hidden]{display:none}
+    .lens-title{position:absolute;right:0;top:-24px;font:500 11px var(--mono);color:var(--c-ink-2);white-space:nowrap}
+    .views{position:absolute;z-index:5;top:12px;right:12px;display:inline-flex;padding:2px;gap:2px;border-radius:var(--r-control);background:color-mix(in srgb,var(--viewer-panel) 95%,transparent);border:1px solid var(--viewer-border)}
+    .views button{font:500 11.5px var(--sans);color:var(--viewer-muted);background:transparent;border:0;border-radius:var(--r-tight);padding:4px 10px;cursor:pointer}
+    .views button:hover{color:var(--viewer-foreground)}
+  </style>
+  <!-- three.js is the host's: it serves three.module.js and the addons at /junction-viewer/vendor/, as for every
+       Clariti 3D page (README, viewer-theme). -->
+  <script type="importmap">{"imports":{"three":"/junction-viewer/vendor/three.module.js","three/addons/":"/junction-viewer/vendor/jsm/"}}</script>
+</head>
+<body>
+  <div class="views" role="group" aria-label="Views"></div>
+  <div class="lens" hidden><span class="lens-title"></span></div>
+  <script type="module" src="./viewer.js"></script>
+</body>
+</html>
