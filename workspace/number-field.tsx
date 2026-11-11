@@ -12,7 +12,7 @@ import { Input } from './input';
 /** A compact panel field: a dark well with the panel's border, in both themes (the shared select trigger takes it too). */
 export const PANEL_FIELD = 'h-7 rounded-control border-border bg-background text-foreground shadow-none dark:bg-background dark:hover:bg-background';
 
-export function NumberField({ value, label, placeholder, disabled, className, inputRef, onBlurEmpty, onChange }: {
+export function NumberField({ value, label, placeholder, disabled, className, inputRef, allowZero, onBlurEmpty, onChange }: {
   value: number | undefined;
   /** The field's accessible name. */
   label: string;
@@ -20,6 +20,8 @@ export function NumberField({ value, label, placeholder, disabled, className, in
   disabled?: boolean;
   className?: string;
   inputRef?: RefObject<HTMLInputElement | null>;
+  /** Zero is a value too (a load stated as none), not put back. */
+  allowZero?: boolean;
   /** Left empty while nothing was stated. */
   onBlurEmpty?: () => void;
   onChange: (value: number | undefined) => void;
@@ -30,7 +32,7 @@ export function NumberField({ value, label, placeholder, disabled, className, in
     const text = draft.trim();
     if (text === '') { if (value !== undefined) onChange(undefined); else onBlurEmpty?.(); return; }
     const next = Number(text);
-    if (Number.isFinite(next) && next > 0) { if (next !== value) onChange(next); }
+    if (Number.isFinite(next) && (next > 0 || (allowZero && next === 0))) { if (next !== value) onChange(next); }
     else setDraft(value === undefined ? '' : String(value));
   };
   return (
