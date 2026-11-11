@@ -9,9 +9,12 @@ import { toCreasedNormals } from 'three/addons/utils/BufferGeometryUtils.js';
 const registries = new Map();
 const hex = bytes => [...new Uint8Array(bytes)].map(v => v.toString(16).padStart(2, '0')).join('');
 
+/** The catalogue's manifest, fetched once; a failed fetch is forgotten, so the next request tries again. */
 async function registry(base) {
   if (!registries.has(base)) {
-    registries.set(base, fetch(`${base}manifest.json`).then(r => (r.ok ? r.json() : Promise.reject(new Error('No registry')))));
+    const manifest = fetch(`${base}manifest.json`).then(r => (r.ok ? r.json() : Promise.reject(new Error('No registry'))));
+    manifest.catch(() => registries.delete(base));
+    registries.set(base, manifest);
   }
   return registries.get(base);
 }

@@ -109,12 +109,26 @@ export function ResultMessages({ blockers = [], warnings = [] }: { blockers?: re
   );
 }
 
-/** The tabs under the selected size. */
+/** Where an arrow, Home or End moves from tab `i` of `n` (wrapping round); null for any other key. */
+const tabAfter = (key: string, i: number, n: number) => (key === 'ArrowRight' ? (i + 1) % n : key === 'ArrowLeft' ? (i - 1 + n) % n
+  : key === 'Home' ? 0 : key === 'End' ? n - 1 : null);
+
+/**
+ * The tabs under the selected size, as the tabs pattern has them: one Tab stop (the tab shown), the arrows, Home and End
+ * move between them and show the tab they land on.
+ */
 export function ResultsSubTabs<T extends string>({ tabs, value, onChange }: { tabs: readonly { id: T; label: string }[]; value: T; onChange: (id: T) => void }) {
   return (
-    <div className="flex gap-1 border-b border-border/40 px-3" role="tablist">
+    <div className="flex gap-1 border-b border-border/40 px-3" role="tablist"
+      onKeyDown={event => {
+        const next = tabAfter(event.key, Math.max(0, tabs.findIndex(t => t.id === value)), tabs.length);
+        if (next === null) return;
+        event.preventDefault();
+        onChange(tabs[next].id);
+        event.currentTarget.querySelectorAll<HTMLElement>('[role=tab]')[next]?.focus();
+      }}>
       {tabs.map(({ id, label }) => (
-        <button key={id} type="button" role="tab" aria-selected={value === id} onClick={() => onChange(id)}
+        <button key={id} type="button" role="tab" aria-selected={value === id} tabIndex={value === id ? 0 : -1} onClick={() => onChange(id)}
           className={cn('-mb-px border-b-2 px-2 py-1.5 text-[11.5px] font-medium', value === id ? 'border-foreground text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground')}>
           {label}
         </button>

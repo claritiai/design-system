@@ -34,6 +34,8 @@ const color = role => new THREE.Color(viewerColor(role));
 const fmt = mm => Math.round(mm).toLocaleString('en-GB').replace(/,/g, ' ');
 const snap = x => Math.round(x / 5) * 5;
 const post = message => parent.postMessage(message, location.origin);
+/** The host's words as text: a label's markup is the page's own, never the scene's. */
+const esc = text => String(text ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
 document.documentElement.dataset.theme = initialViewerTheme();
 document.documentElement.classList.toggle('dark', document.documentElement.dataset.theme === 'dark');
@@ -62,7 +64,11 @@ scene.add(frame, floor);
 /** What the host sent last (with a drag's preview applied), and the scene as sent. */
 let S = null, sent = null, blocker = null, shownOrientation = null;
 let mats = null, tween = null, pickables = [], drag = null, staticKey = null, fittedKey = null, request = 0;
+/** A scene the host sent while a drag was under way: applied when the drag ends. */
+let pending = null;
 const meshes = new Map();
+/** Models being fetched, by catalogue and id, so two scenes do not fetch one twice. */
+const loading = new Map();
 
 function materials() {
   const m = modelMaterials();
@@ -154,7 +160,7 @@ function buildStatic() {
     if (how === 'assumed') {
       const m = new THREE.Mesh(new THREE.CylinderGeometry(R * 0.22, R * 0.22, a.distanceTo(b), 10), mats.assumed);
       m.position.copy(mid); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), b.clone().sub(a).normalize()); stat.add(m);
-      tag(`<span class="mark">${S.words.assumed}</span>`, mid.clone().add(out.clone().multiplyScalar(R * 3.5)), 'tag caption', stat);
+      tag(`<span class="mark">${esc(S.words.assumed)}</span>`, mid.clone().add(out.clone().multiplyScalar(R * 3.5)), 'tag caption', stat);
     } else if (how === 'beyond') {
       // Farther than the view shows: cut, a quiet dashed line, no word (the dimension says how far).
       const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints([a, b]), mats.cutLine);
@@ -162,10 +168,10 @@ function buildStatic() {
     } else if (how === 'open') {
       const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints([a, b]), mats.openLine);
       mats.openLine.dashSize = R * 1.4; mats.openLine.gapSize = R; l.computeLineDistances(); stat.add(l);
-      tag(S.words.open, mid.clone().add(out.clone().multiplyScalar(R * 3.5)), 'tag open', stat);
+      tag(esc(S.words.open), mid.clone().add(out.clone().multiplyScalar(R * 3.5)), 'tag open', stat);
     }
   }
-  tag(S.caption, W(x0, y0, 1).add(new THREE.Vector3(0, -R * 3, T * 0.0)), 'tag caption', stat).center.set(0, 0);
+  tag(esc(S.caption), W(x0, y0, 1).add(new THREE.Vector3(0, -R * 3, T * 0.0)), 'tag caption', stat).center.set(0, 0);
 }
 
 // ---------- the dynamic scene: products, plate, loads, dimensions ----------
@@ -213,7 +219,7 @@ function buildDynamic() {
       const ring = new THREE.Mesh(new THREE.RingGeometry(R * 2.2, R * 2.6, 64), mats.ring);
       ring.position.copy(at).add(new THREE.Vector3(0, 0, plateT() + 1.2)); dyn.add(ring);
     }
-    tag(p.name, at.clone().add(new THREE.Vector3(0, R * 4, plateT() + 2)), sel ? 'tag name selected' : 'tag name');
+    tag(esc(p.name), at.clone().add(new THREE.Vector3(0, R * 4, plateT() + 2)), sel ? 'tag name selected' : 'tag name');
     pick(at.clone().add(new THREE.Vector3(0, 0, plateT() + R)), R * 4.5, { kind: 'product', index: i });
   });
   // the loads: tension out of the face, a shear on the face towards an edge
@@ -223,20 +229,23 @@ function buildDynamic() {
     let tip;
     if (load.kind === 'tension') tip = arrow(from.clone().add(new THREE.Vector3(0, 0, R * 2)), new THREE.Vector3(0, 0, 1), R * 18, material);
     else tip = arrow(from.clone().add(new THREE.Vector3(load.dir[0], load.dir[1], 0).multiplyScalar(R * 3)), new THREE.Vector3(load.dir[0], load.dir[1], 0), R * 12, material);
-    tag(`${load.text}${load.assumed ? `<span class="mark">${S.words.assumed}</span>` : ''}`,
+    tag(`${esc(load.text)}${load.assumed ? `<span class="mark">${esc(S.words.assumed)}</span>` : ''}`,
       tip.clone().add(load.kind === 'tension' ? new THREE.Vector3(R * 5, R * 5, R * 2) : new THREE.Vector3(load.dir[0] * R * 4, load.dir[1] * R * 4 - R * 2, 0)), 'tag load');
   }
   // the dimensions on the face
   for (const d of S.dims) {
     const a = W(d.from[0], d.from[1], 1), b = W(d.to[0], d.to[1], 1);
     const along = b.clone().sub(a).normalize();
-    dimLine(a, b, d.text, new THREE.Vector3(-along.y, along.x, 0), d.assumed ? 'tag dim assumed' : 'tag dim');
+    dimLine(a, b, esc(d.text), new THREE.Vector3(-along.y, along.x, 0), d.assumed ? 'tag dim assumed' : 'tag dim');
   }
-  if (S.movable) for (const side of SIDES) if (S.sides[side] === 'stated' || S.sides[side] === 'assumed') pickEdge(side);
+  // An edge's distance is measured from the outermost product: without products there is nothing to drag it from.
+  if (S.movable && S.products.length) for (const side of SIDES) if (S.sides[side] === 'stated' || S.sides[side] === 'assumed') pickEdge(side);
   lensFrame.hidden = !lensShown();
   layoutView();
   const i = S.selected ?? 0, p = S.products[i];
-  lensFrame.querySelector('.lens-title').innerHTML = p ? `<b>${p.name}</b> · ${p.mesh?.id ?? ''}` : '';
+  const title = lensFrame.querySelector('.lens-title');
+  title.replaceChildren();
+  if (p) { const name = document.createElement('b'); name.textContent = p.name; title.append(name, ` · ${p.mesh?.id ?? ''}`); }
 }
 
 // ---------- camera ----------
@@ -292,9 +301,10 @@ function faceAxes(x, y) {
 /** The largest edge distance a drag may state: as far as the view draws an edge (the host's), else 1.5 m. */
 const reach = () => sent.maxEdge_mm ?? 1500;
 document.body.addEventListener('pointerdown', ev => {
-  if (!S || ev.target.closest('.views, .lens')) return;
+  // One drag at a time: a second pointer going down does not replace it.
+  if (!S || drag || ev.target.closest('.views, .lens')) return;
   const hit = cast(ev);
-  if (!hit) return;
+  if (!hit || !sent.products.length) return;
   ev.stopPropagation(); ev.preventDefault();
   const xs = sent.products.map(p => p.x), ys = sent.products.map(p => p.y);
   const cxp = (Math.min(...xs) + Math.max(...xs)) / 2, cyp = (Math.min(...ys) + Math.max(...ys)) / 2;
@@ -302,7 +312,7 @@ document.body.addEventListener('pointerdown', ev => {
   if (hit.userData.kind === 'product') {
     post({ type: 'cast-in-element-select', index: hit.userData.index });
     if (!S.movable) return;
-    drag = { kind: 'product', start, axes: faceAxes(cxp, cyp), dx: 0, dy: 0 };
+    drag = { kind: 'product', pointerId: ev.pointerId, start, axes: faceAxes(cxp, cyp), dx: 0, dy: 0 };
   } else {
     const side = hit.userData.side, e = sent.element;
     const at = side === 'x_minus' ? [e.x0, cyp] : side === 'x_plus' ? [e.x1, cyp] : side === 'y_minus' ? [cxp, e.y0] : [cxp, e.y1];
@@ -311,7 +321,7 @@ document.body.addEventListener('pointerdown', ev => {
     // Outwards on screen for 100 mm: −x on the left, +x on the right, −y at the bottom, +y at the top.
     const out = side === 'x_minus' ? ex.clone().negate() : side === 'x_plus' ? ex : side === 'y_minus' ? ey.clone().negate() : ey;
     if (out.lengthSq() < 4) return;
-    drag = { kind: 'edge', side, start, out, base, value: null };
+    drag = { kind: 'edge', pointerId: ev.pointerId, side, start, out, base, value: null };
   }
   try { document.body.setPointerCapture(ev.pointerId); } catch { /* a pointer the page did not see go down */ }
   controls.enabled = false;
@@ -324,6 +334,7 @@ document.body.addEventListener('pointermove', ev => {
     document.body.dataset.hover = hit?.userData.kind === 'edge' ? (hit.userData.side.startsWith('y') ? 'edge-y' : 'edge-x') : hit?.userData.kind ?? '';
     return;
   }
+  if (ev.pointerId !== drag.pointerId) return;
   const d = new THREE.Vector2(ev.clientX, ev.clientY).sub(drag.start);
   const xs = sent.products.map(p => p.x), ys = sent.products.map(p => p.y);
   if (drag.kind === 'product') {
@@ -360,15 +371,30 @@ function tagDrag(side, mm) {
     : side === 'y_minus' ? W((Math.min(...xs) + Math.max(...xs)) / 2, e.y0, 2) : W((Math.min(...xs) + Math.max(...xs)) / 2, e.y1, 2);
   tag(fmt(mm), at, 'tag dim selected');
 }
-const end = ev => {
-  if (!drag) return;
-  if (drag.kind === 'product' && (drag.dx || drag.dy)) post({ type: 'cast-in-element-drop', dx: drag.dx, dy: drag.dy });
-  if (drag.kind === 'edge' && drag.value !== null) post({ type: 'cast-in-element-edge', side: drag.side, mm: Math.round(drag.value) });
+/**
+ * The drag over: its pointer released, and a scene the host sent meanwhile applied. Without one, a stated change keeps
+ * its preview until the host's next scene; a cancelled one goes back to the scene as sent.
+ */
+function finish(ev, stated) {
   drag = null; document.body.dataset.dragging = ''; controls.enabled = true;
   try { document.body.releasePointerCapture(ev.pointerId); } catch { /* not captured */ }
-};
-document.body.addEventListener('pointerup', end);
-document.body.addEventListener('pointercancel', end);
+  const next = pending ?? (stated ? null : sent);
+  pending = null;
+  if (next) { staticKey = null; show(next); }
+}
+/** Released: the change is stated, once. */
+document.body.addEventListener('pointerup', ev => {
+  if (!drag || ev.pointerId !== drag.pointerId) return;
+  let stated = false;
+  if (drag.kind === 'product' && (drag.dx || drag.dy)) { post({ type: 'cast-in-element-drop', dx: drag.dx, dy: drag.dy }); stated = true; }
+  if (drag.kind === 'edge' && drag.value !== null) { post({ type: 'cast-in-element-edge', side: drag.side, mm: Math.round(drag.value) }); stated = true; }
+  finish(ev, stated);
+});
+/** Cancelled by the browser: nothing is stated, the preview goes back. */
+document.body.addEventListener('pointercancel', ev => {
+  if (!drag || ev.pointerId !== drag.pointerId) return;
+  finish(ev, false);
+});
 
 // ---------- render ----------
 const lensShown = () => Boolean(S?.products[S.selected ?? 0] && innerWidth >= 560 && innerHeight >= 360);
@@ -412,7 +438,7 @@ function show(next) {
   const theme = document.documentElement.dataset.theme;
   sent = next; S = next;
   if (!mats) mats = materials();
-  const key = JSON.stringify([next.element, next.sides, next.zones, next.caption, theme]);
+  const key = JSON.stringify([next.element, next.sides, next.zones, next.caption, next.orientation ?? 'flat', theme]);
   if (key !== staticKey) { staticKey = key; buildStatic(); }
   buildDynamic();
   const fit = JSON.stringify([Math.round(next.element.x1 - next.element.x0), Math.round(next.element.y1 - next.element.y0), next.element.thickness_mm, orientation()]);
@@ -438,12 +464,20 @@ addEventListener('message', async event => {
   if (event.source !== parent || event.origin !== location.origin || event.data?.type !== 'cast-in-element-scene') return;
   const next = event.data.scene;
   const asked = ++request;
-  // Each model is fetched once; a product without one is drawn as a plain cylinder until it arrives (or for good).
-  await Promise.all(next.products.filter(p => p.mesh).map(async p => {
+  // Drawn at once, a product without its model yet as a plain cylinder; while a drag is under way, kept for its end.
+  if (drag) pending = next; else show(next);
+  // Each model is fetched once; one that could not be had (yet) is asked for again with the next scene.
+  const missing = next.products.filter(p => p.mesh && !meshes.has(`${p.mesh.base}|${p.mesh.id}`));
+  if (!missing.length) return;
+  const arrived = await Promise.all(missing.map(p => {
     const key = `${p.mesh.base}|${p.mesh.id}`;
-    if (!meshes.has(key)) meshes.set(key, await loadMesh(p.mesh));
+    if (!loading.has(key)) {
+      loading.set(key, loadMesh(p.mesh).then(geometry => { loading.delete(key); if (geometry) meshes.set(key, geometry); return geometry; }));
+    }
+    return loading.get(key);
   }));
-  if (asked !== request || drag) return;
-  show(next);
+  // Redrawn with the models, unless a newer scene came meanwhile (it redraws itself) or a drag holds it.
+  if (asked !== request || !arrived.some(Boolean)) return;
+  if (drag) pending = next; else show(next);
 });
 post({ type: 'cast-in-element-ready' });
