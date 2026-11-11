@@ -3,6 +3,7 @@ export {
   type WorkspaceFrameProps, type WorkspaceTab,
 } from './frame';
 export { DrawingNotice, ViewSwitch, ZoneLegend, type ViewMode } from './viewer-chrome';
+export { DefaultPill, Dimensions, DimensionsY, Hatch, Label, NamePill, T, fmt, pointInDrawing } from './drawing-parts';
 export { PANEL_DRAWING_PALETTE, ZONE_COLOUR, worseZone, zoneFill, type DrawingZone } from './palette';
 export { ViewerStatStrip, type ResultsStat } from './stat-strip';
 export { ResultsTabBadge } from './results-tab-badge';
