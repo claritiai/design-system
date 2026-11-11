@@ -6,37 +6,17 @@
 // is hidden a pill over the viewer can carry a summary and the action that runs the check, so the page is never without
 // one. Below the md width the open pane covers the viewer, and a window that narrows to it closes the pane.
 //
-// Embedded with nothing docked left (a calculation beside a chat, say), the frame is a view on its own and follows its
-// own width rather than the window's: narrower than 56rem, too narrow for the 3D beside the 380px pane, the pane goes
-// under the viewer at the full width, the viewer keeps the upper 60%, and the stats under the viewer give way (they
-// repeat the Results tab, which stays open). Anything else lays out by the window alone.
-//
 // The frame knows nothing about the app around it: the app may put its header row and a banner above the body
 // (`header`, `banner`), dock panels left of the viewer in the same row (`leftDock`, a chat say), and add its dialogs
 // after the body (`children`). Without any of them it is the viewer and its pane alone. The app owns whether the pane is open and which tab shows;
 // `useWorkspacePane` keeps the open state in the browser's storage.
-import { PanelBottomClose, PanelRightClose, Pencil } from 'lucide-react';
+import { PanelRightClose, Pencil } from 'lucide-react';
 import { createElement, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { cn } from '../shell/cn';
 
 export type WorkspaceTab = 'parameters' | 'results';
 
 const NARROW = '(max-width: 767px)';
-
-/**
- * A frame that follows its own width is the container the classes below ask about. Below 56rem the row stacks the pane
- * under the viewer, the stats give way and the handle's icon points down; from the md window up the pane takes the
- * lower 40%, and below md it covers the viewer as in any frame.
- */
-const CONTAINER = '@container/workspace';
-const STACKED = {
-  row: '@max-4xl/workspace:flex-col',
-  pane: '@max-4xl/workspace:w-full md:@max-4xl/workspace:h-[40%]',
-  paneEdge: '@max-4xl/workspace:border-l-0 @max-4xl/workspace:border-t',
-  stats: '@max-4xl/workspace:hidden',
-  besideIcon: '@max-4xl/workspace:hidden',
-  belowIcon: 'hidden @max-4xl/workspace:block',
-} as const;
 
 /** Whether the pane was left open under `key`; open when nothing was kept, or the storage cannot be read. */
 export function readPaneOpen(key: string): boolean {
@@ -81,10 +61,7 @@ export interface WorkspaceFrameProps {
   header?: ReactNode;
   /** Under the header, across the frame: a banner (an error, say). */
   banner?: ReactNode;
-  /**
-   * Fills its container instead of the window's height. With nothing docked left it also follows its container's width:
-   * narrower than 56rem, the pane goes under the viewer and the stat strip gives way.
-   */
+  /** Fills its container instead of the window's height. */
   embedded?: boolean;
   /**
    * Left of the viewer, in the same row and in this order: what the app docks there (its chat panel, say), each with
@@ -137,8 +114,6 @@ export function WorkspaceFrame({
   dockedAction,
   children,
 }: WorkspaceFrameProps) {
-  // A view on its own, sized by its container: its layout follows the container's width (STACKED).
-  const own = !!embedded && leftDock.length === 0;
   const change = useRef(onPaneOpenChange);
   change.current = onPaneOpenChange;
   useEffect(() => {
@@ -192,7 +167,7 @@ export function WorkspaceFrame({
 
       {/* The stats under the viewer, while the pane is open */}
       {paneOpen && statStrip && (
-        <div className={cn('shrink-0 mt-2', own && STACKED.stats)}>
+        <div className="shrink-0 mt-2">
           {statStrip}
         </div>
       )}
@@ -202,11 +177,11 @@ export function WorkspaceFrame({
   // The right pane: Parameters | Results, mounted while hidden.
   const pane = (
     <div
-      className={cn('relative w-[380px] shrink-0 flex-col min-h-0', !empty && 'max-md:absolute max-md:inset-0 max-md:z-30 max-md:!w-full', own && STACKED.pane)}
+      className={cn('relative w-[380px] shrink-0 flex-col min-h-0', !empty && 'max-md:absolute max-md:inset-0 max-md:z-30 max-md:!w-full')}
       style={{ display: paneOpen && !empty ? 'flex' : 'none' }}
       data-testid="right-pane"
     >
-      <div className={cn('flex-1 flex flex-col min-h-0 bg-card border-l border-border/50 overflow-hidden', own && STACKED.paneEdge)}>
+      <div className="flex-1 flex flex-col min-h-0 bg-card border-l border-border/50 overflow-hidden">
         {/* The tabs and the handle that hides the pane */}
         <div className="shrink-0 flex items-center gap-1.5 px-3 py-2.5 border-b border-border/50">
           <span className="inline-flex bg-muted rounded-control p-0.5 flex-1">
@@ -235,12 +210,7 @@ export function WorkspaceFrame({
             aria-label="Hide parameters"
             data-testid="collapse-params"
           >
-            {own ? (
-              <>
-                <PanelRightClose className={cn('w-4 h-4', STACKED.besideIcon)} />
-                <PanelBottomClose className={cn('w-4 h-4', STACKED.belowIcon)} />
-              </>
-            ) : <PanelRightClose className="w-4 h-4" />}
+            <PanelRightClose className="w-4 h-4" />
           </button>
         </div>
 
@@ -256,11 +226,11 @@ export function WorkspaceFrame({
   );
 
   return (
-    <div className={cn('flex flex-col bg-background overflow-hidden', embedded ? 'h-full' : 'h-dvh', own && CONTAINER)}>
+    <div className={cn('flex flex-col bg-background overflow-hidden', embedded ? 'h-full' : 'h-dvh')}>
       {header}
       {banner}
       {/* The row: what the app docks left, the viewer and the pane, siblings in one list. */}
-      {createElement('div', { className: cn('relative flex-1 flex min-h-0', own && STACKED.row) }, ...leftDock, centre, pane)}
+      {createElement('div', { className: 'relative flex-1 flex min-h-0' }, ...leftDock, centre, pane)}
       {children}
     </div>
   );
