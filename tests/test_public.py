@@ -34,6 +34,11 @@ class Public(unittest.TestCase):
                          "templates/deck.html", "shell/sidebar.tsx", "shell/chat.tsx", "workspace/frame.tsx",
                          "viewer-theme/studio.js"} <= names)
 
+    def test_viewer_theme_is_flat(self):
+        # Hosts copy viewer-theme/ into their public folder file by file (Clariti's postinstall, the partners site's
+        # copy-viewer): a subfolder there breaks their install.
+        self.assertEqual(sorted(p.name for p in (ROOT / "viewer-theme").iterdir() if p.is_dir()), [])
+
     def test_no_wording_about_what_is_coming_and_no_manufacturer(self):
         for path in SCANNED:
             words = set(re.findall(r"[a-z0-9]+", path.read_text(encoding="utf-8").lower()))
