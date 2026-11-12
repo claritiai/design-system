@@ -1,6 +1,6 @@
 {
   "name": "@clariti/design-system",
-  "version": "0.11.2",
+  "version": "0.11.3",
   "private": true,
   "description": "Clariti's colour palette, Tailwind theme, form controls, 3D palette, the shared 3D look (viewer-theme), plugin base, slides, brand assets, the app shell (sidebar, top bar, chat frame, chat panel and chat parts) and the design workspace (the viewer with its Parameters and Results pane, the parts those panes are built from and the SVG parts of a drawing in the viewer).",
   "license": "UNLICENSED",
