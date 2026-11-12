@@ -399,7 +399,7 @@ document.body.addEventListener('pointercancel', ev => {
 // ---------- render ----------
 const lensShown = () => Boolean(S?.products[S.selected ?? 0] && innerWidth >= 560 && innerHeight >= 360);
 const lensRoom = () => lensRoomOf(lensFrame);
-const layoutView = () => layoutForLens(camera, lensFrame);
+const layoutView = () => { if (sized()) layoutForLens(camera, lensFrame); };
 /** The selected product up close, its embedded part through the concrete: the design system's lens. */
 function renderLens() {
   if (lensFrame.hidden) return;
@@ -410,11 +410,15 @@ function renderLens() {
     dir: camera.position.clone().sub(controls.target), reach: Math.max(depth * 1.6, k() * 6), distance: 2.6, background: color('viewer-panel') });
 }
 const declutter = () => declutterTags(labels.domElement);
+/** A frame with no size yet (a hidden panel) has no picture to fit: the camera is fitted once it has one. */
+const sized = () => innerWidth > 0 && innerHeight > 0;
 function resize() {
+  if (!sized()) return;
   renderer.setSize(innerWidth, innerHeight); labels.setSize(innerWidth, innerHeight);
   if (S) lensFrame.hidden = !lensShown();
   layoutView();
   mats?.edges.resolution.set(innerWidth, innerHeight);
+  if (S && fittedKey === null) show(sent);
 }
 function draw(now = performance.now()) {
   if (!S) return;
@@ -442,7 +446,7 @@ function show(next) {
   if (key !== staticKey) { staticKey = key; buildStatic(); }
   buildDynamic();
   const fit = JSON.stringify([Math.round(next.element.x1 - next.element.x0), Math.round(next.element.y1 - next.element.y0), next.element.thickness_mm, orientation()]);
-  if (fit !== fittedKey) {
+  if (fit !== fittedKey && sized()) {
     const first = fittedKey === null;
     fittedKey = fit;
     aimSun(sun, Math.max(next.element.x1 - next.element.x0, next.element.y1 - next.element.y0) * 1.4, frame.localToWorld(W((next.element.x0 + next.element.x1) / 2, (next.element.y0 + next.element.y1) / 2, 0)));
