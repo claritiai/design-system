@@ -123,9 +123,17 @@ function zoneDecal() {
   const c = document.createElement('canvas'); c.width = Math.max(8, Math.round(w * px)); c.height = Math.max(8, Math.round(h * px));
   const g = c.getContext('2d');
   for (const z of S.zones) {
+    const x = (z.x0 - x0) * px, y = (y1 - z.y1) * px, zw = (z.x1 - z.x0) * px + 1, zh = (z.y1 - z.y0) * px + 1;
     g.fillStyle = viewerColor(ZONE_ROLE[z.zone]);
-    g.globalAlpha = z.zone === 'red' ? 0.1 : z.zone === 'amber' ? 0.34 : 0.26;
-    g.fillRect((z.x0 - x0) * px, (y1 - z.y1) * px, (z.x1 - z.x0) * px + 1, (z.y1 - z.y0) * px + 1);
+    g.globalAlpha = z.zone === 'red' ? 0.16 : z.zone === 'amber' ? 0.34 : 0.26;
+    g.fillRect(x, y, zw, zh);
+    if (z.zone === 'red') { // outside the published condition: hatched, as the lifting panel and the drawings show it
+      g.save(); g.beginPath(); g.rect(x, y, zw, zh); g.clip();
+      g.globalAlpha = 0.8; g.strokeStyle = viewerColor(ZONE_ROLE.red); g.lineWidth = Math.max(2, 3.5 * px);
+      const step = Math.max(8, 22 * px);
+      for (let s = -zh; s < zw + zh; s += step) { g.beginPath(); g.moveTo(x + s, y + zh); g.lineTo(x + s + zh, y); g.stroke(); }
+      g.restore();
+    }
   }
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
   const material = new THREE.MeshStandardMaterial({ map: t, transparent: true, depthWrite: false, roughness: 1, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 });
