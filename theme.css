@@ -61,6 +61,10 @@
   --assumed: var(--c-warn);
   --assumed-bg: var(--c-warn-bg);
   --assumed-border: var(--c-warn-line);
+  /* The red field: a value only the engineer can state, not stated yet. As loud as the orange one. */
+  --required: var(--c-error-icon);
+  --required-bg: var(--c-required-bg);
+  --required-border: var(--c-error-line);
   /* Status. warn is the same amber as an assumed value: both mean "check this". */
   --status-pass: var(--c-verified);
   --status-warn: var(--c-warn);
@@ -100,6 +104,9 @@
   --color-assumed: var(--assumed);
   --color-assumed-bg: var(--assumed-bg);
   --color-assumed-border: var(--assumed-border);
+  --color-required: var(--required);
+  --color-required-bg: var(--required-bg);
+  --color-required-border: var(--required-border);
   --color-status-pass: var(--status-pass);
   --color-status-warn: var(--status-warn);
   --color-status-fail: var(--status-fail);

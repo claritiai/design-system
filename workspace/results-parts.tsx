@@ -9,6 +9,7 @@
 import type { ReactNode } from 'react';
 import { cn } from '../shell/cn';
 import { Badge } from './badge';
+import { DefaultMark } from './default-mark';
 import { UtilizationBar } from './utilization-bar';
 
 /** A mark beside a size: the proposed one (pass) or the lightest of a family. */
@@ -178,7 +179,7 @@ export function ResultNote({ children }: { children: ReactNode }) {
 /** One group of requirements to tick, each item "label · detail". */
 export interface RequirementGroup { id: string; label: string; items: readonly { id: string; label: string; detail: string }[] }
 
-/** The requirements the engineer ticks, group by group; a group not ticked yet wears the required star. */
+/** The requirements the engineer ticks, group by group; a group not ticked yet wears the required mark. */
 export function RequirementGroups({ hint, groups, ticked, readOnly, onToggle, children, testId = 'results-requirements' }: {
   hint?: string; groups: readonly RequirementGroup[]; ticked: readonly string[]; readOnly?: boolean;
   onToggle: (id: string, ticked: boolean) => void;
@@ -193,7 +194,7 @@ export function RequirementGroups({ hint, groups, ticked, readOnly, onToggle, ch
           <label className="flex cursor-pointer items-start gap-2">
             <input type="checkbox" className="mt-0.5" checked={ticked.includes(group.id)} disabled={readOnly}
               onChange={event => onToggle(group.id, event.target.checked)} />
-            <span className="font-medium text-foreground/90">{group.label}{!ticked.includes(group.id) && <span className="text-destructive"> *</span>}</span>
+            <span className="font-medium text-foreground/90">{group.label}{!ticked.includes(group.id) && <DefaultMark kind="required" className="ml-1.5 align-middle" />}</span>
           </label>
           {group.items.length > 0 && (
             <ul className="mt-1 space-y-0.5 pl-6 text-[11px] text-muted-foreground">

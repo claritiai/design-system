@@ -1,9 +1,14 @@
 import type { ReactNode } from 'react';
 import { cn } from '../shell/cn';
-import { ASSUMED_FIELD, DefaultMark } from './default-mark';
+import { ASSUMED_FIELD, DefaultMark, REQUIRED_FIELD } from './default-mark';
 
 export interface PropRowProps {
   label: string;
+  /**
+   * A value only the engineer can state (it has no default), not stated yet: the red "required" mark beside the label
+   * and the field in the red fill until it is stated. Pass it while the value is missing, not for every row that must
+   * hold one; it replaces any other mark.
+   */
   required?: boolean;
   unit?: string;
   hasError?: boolean;
@@ -43,7 +48,7 @@ const HELPER_TONE_CLASSES: Record<NonNullable<PropRowProps['helperTone']>, strin
   error: 'text-destructive',
 };
 
-/** One parameter: its label (with its unit, a required star and its mark), its control, and a helper line under it. */
+/** One parameter: its label (with its unit and its mark), its control, and a helper line under it. */
 export function PropRow({
   label,
   required,
@@ -60,9 +65,12 @@ export function PropRow({
   children,
   className,
 }: PropRowProps) {
-  const shown = review
+  const shown = required
+    ? <DefaultMark kind="required" className="ml-1.5 align-middle" />
+    : review
     ? <DefaultMark kind="review" className="ml-1.5 align-middle" />
     : assumed ? <DefaultMark title={assumedHint} className="ml-1.5 align-middle" /> : mark;
+  const field = required ? REQUIRED_FIELD : assumed ? ASSUMED_FIELD : undefined;
   const helper = helperText && (
     <span className={cn('text-[10.5px] leading-snug', HELPER_TONE_CLASSES[helperTone])}>
       {helperText}
@@ -81,14 +89,13 @@ export function PropRow({
           >
             {label}
             {unit && <span className="text-muted-foreground/70 ml-1">{unit}</span>}
-            {required && <span className="text-destructive font-bold ml-0.5">*</span>}
           </span>
           {shown}
           <div
             className={cn(
               'flex items-center justify-end gap-2',
               layout === 'measure' ? 'min-w-0 flex-1' : 'shrink-0',
-              assumed && ASSUMED_FIELD
+              field
             )}
           >
             {children}
@@ -108,10 +115,9 @@ export function PropRow({
       >
         {label}
         {unit && <span className="text-muted-foreground/60 font-normal ml-1">{unit}</span>}
-        {required && <span className="text-destructive font-bold ml-0.5">*</span>}
         {shown}
       </span>
-      <div className={cn('w-full', assumed && ASSUMED_FIELD)}>{children}</div>
+      <div className={cn('w-full', field)}>{children}</div>
       {helper}
     </div>
   );
