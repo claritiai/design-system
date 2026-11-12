@@ -18,7 +18,7 @@ export { SegmentedControl } from './segmented-control';
 export { CollapsibleSection } from './collapsible-section';
 export { NumberField, PANEL_FIELD } from './number-field';
 export { MeasureInput } from './measure-input';
-export { ASSUMED_FIELD, DEFAULT_MARK_TEXT, DefaultMark, type DefaultMarkKind } from './default-mark';
+export { ASSUMED_FIELD, DEFAULT_MARK_TEXT, DefaultMark, MarkCount, REQUIRED_FIELD, type DefaultMarkKind } from './default-mark';
 export { PropRow, type PropRowProps } from './prop-row';
 export { UtilizationBar } from './utilization-bar';
 export { getUtilizationColor, getUtilizationStrokeColor, getUtilizationTextColor } from './utilization-colors';
