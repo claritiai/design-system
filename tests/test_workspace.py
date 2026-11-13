@@ -1,13 +1,13 @@
 """The design workspace (workspace/) is the frame and the parts every product family's panes are built from: it imports
-React, the icon set, Radix's select and the shell's class joiner, and nothing from an app, so every Clariti app can
-install it as it is. It names no product family: a family's words and rules stay with the family."""
+React, the icon set, Radix's select and tooltip, Motion and the shell's class joiner, and nothing from an app, so every
+Clariti app can install it as it is. It names no product family: a family's words and rules stay with the family."""
 import re
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 WORKSPACE = ROOT / "workspace"
-ALLOWED = {"react", "lucide-react", "@radix-ui/react-select", "../shell/cn"}
+ALLOWED = {"react", "lucide-react", "@radix-ui/react-select", "@radix-ui/react-tooltip", "motion/react", "../shell/cn"}
 #: The product families Clariti designs today, whose words belong in their own views.
 FAMILIES = {"lifting", "channel", "channels", "masonry", "brickwork", "lintel", "lintels", "socket", "sockets", "rope",
             "barrier", "anchor", "anchors", "bracket", "brackets", "tie", "ties"}
