@@ -3,7 +3,7 @@
 /**
  * A typed number for a parameter panel, stated when the engineer leaves the field (or presses Enter), not on every
  * keystroke: a half-typed value is never checked. Cleared, it is not stated; a value that does not read as a positive
- * number is put back. Drawn as a dark well on the panel (`PANEL_FIELD`), so a value reads at full contrast.
+ * number (or zero, or below zero, where the field allows them) is put back. Drawn as a dark well on the panel (`PANEL_FIELD`), so a value reads at full contrast.
  */
 import { useEffect, useState, type RefObject } from 'react';
 import { cn } from '../shell/cn';
@@ -12,7 +12,7 @@ import { Input } from './input';
 /** A compact panel field: a dark well with the panel's border, in both themes (the shared select trigger takes it too). */
 export const PANEL_FIELD = 'h-7 rounded-control border-border bg-background text-foreground shadow-none dark:bg-background dark:hover:bg-background';
 
-export function NumberField({ value, label, placeholder, disabled, className, inputRef, allowZero, onBlurEmpty, onChange }: {
+export function NumberField({ value, label, placeholder, disabled, className, inputRef, allowZero, allowNegative, onBlurEmpty, onChange }: {
   value: number | undefined;
   /** The field's accessible name. */
   label: string;
@@ -22,6 +22,8 @@ export function NumberField({ value, label, placeholder, disabled, className, in
   inputRef?: RefObject<HTMLInputElement | null>;
   /** Zero is a value too (a load stated as none), not put back. */
   allowZero?: boolean;
+  /** A value below zero is a value too (a force stated in the opposite sense, as compression), not put back. */
+  allowNegative?: boolean;
   /** Left empty while nothing was stated. */
   onBlurEmpty?: () => void;
   onChange: (value: number | undefined) => void;
@@ -32,7 +34,7 @@ export function NumberField({ value, label, placeholder, disabled, className, in
     const text = draft.trim();
     if (text === '') { if (value !== undefined) onChange(undefined); else onBlurEmpty?.(); return; }
     const next = Number(text);
-    if (Number.isFinite(next) && (next > 0 || (allowZero && next === 0))) { if (next !== value) onChange(next); }
+    if (Number.isFinite(next) && (next > 0 || (allowZero && next === 0) || (allowNegative && next < 0))) { if (next !== value) onChange(next); }
     else setDraft(value === undefined ? '' : String(value));
   };
   return (
