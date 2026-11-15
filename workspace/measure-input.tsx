@@ -51,7 +51,7 @@ export function MeasureInput({ label, value, ghost, start, min, max, step, notSt
         min={min} max={max} step={step} value={Math.min(max, Math.max(min, value ?? ghost ?? min))} disabled={disabled}
         onChange={event => state(Number(event.target.value))} />
       <NumberField inputRef={input} label={label} value={value} className="w-[62px]" disabled={disabled}
-        allowZero={min <= 0}
+        allowZero={min <= 0 && max >= 0}
         placeholder={value === undefined && ghost !== undefined ? fmt(ghost) : notStated} onBlurEmpty={() => setArmed(false)} onChange={state} />
     </>
   );
