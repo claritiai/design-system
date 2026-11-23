@@ -78,7 +78,8 @@ export function shadowGround(material, size, y = 0) {
 }
 
 /**
- * The model's materials. `card` and `shade` are the construction (the card a shade down for a cut face or a mould);
+ * The model's materials. `steel` is the product and `reinforcement` the bars cast in the concrete around it, where a
+ * view draws them, with `reinforcementXray` drawing the part of them the concrete hides, in their own colour. `card` and `shade` are the construction (the card a shade down for a cut face or a mould);
  * `block`, `blockCut` and `ghost` are concrete a product is cast into (0.8 opaque, and the concrete in front of a
  * cut), with `xray` drawing the part of the product it hides and `hatch` laid over a cut face; `edges` are the ink
  * outlines and `ghostEdges` the quiet ones of a ghost (keep both at the canvas size), `dimension` and `dashed` the
@@ -91,6 +92,8 @@ export function modelMaterials() {
     card: matte('model-card'),
     shade: matte('model-shade'),
     steel: matte('material-steel'),
+    reinforcement: matte('material-reinforcement'),
+    reinforcementXray: role(new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.45, depthWrite: false, depthFunc: THREE.GreaterDepth }), 'material-reinforcement'),
     ink: matte('c-ink'),
     block: matte('model-card', { transparent: true, opacity: 0.8 }),
     blockCut: matte('model-shade', { transparent: true, opacity: 0.8 }),
