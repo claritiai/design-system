@@ -56,7 +56,14 @@ export function useWorkspacePane(storageKey: string, initial?: boolean): [boolea
   return [open, change];
 }
 
-export interface WorkspaceFrameProps {
+/** One tab of the right pane, for a frame whose pane is not Parameters and Results (`paneTabs`). */
+export interface WorkspacePaneTab<T extends string = string> {
+  id: T;
+  label: ReactNode;
+  content: ReactNode;
+}
+
+export interface WorkspaceFrameProps<T extends string = WorkspaceTab> {
   /** Above the body, across the frame: the app's header row. */
   header?: ReactNode;
   /** Under the header, across the frame: a banner (an error, say). */
@@ -76,10 +83,19 @@ export interface WorkspaceFrameProps {
   paneOpen: boolean;
   /** From the pane's hide handle, the edge chip, and a window that narrows below md. */
   onPaneOpenChange: (open: boolean) => void;
-  tab: WorkspaceTab;
-  onTabChange: (tab: WorkspaceTab) => void;
-  parameters: ReactNode;
-  results: ReactNode;
+  tab: T;
+  onTabChange: (tab: T) => void;
+  parameters?: ReactNode;
+  results?: ReactNode;
+  /**
+   * The pane's own tabs, in place of Parameters and Results (a viewer with no check, say). One tab shows as the pane's
+   * title, with no switch.
+   */
+  paneTabs?: readonly WorkspacePaneTab<T>[];
+  /** What the edge chip and the hide handle call the pane ("Parameters" by default). */
+  paneLabel?: string;
+  /** The edge chip's icon (a pencil by default). */
+  paneIcon?: ReactNode;
   /** Beside the Results tab's label (ResultsTabBadge). */
   resultsBadge?: ReactNode;
   /** A count on the edge chip that brings the pane back (values to review, say); none at zero. */
@@ -94,7 +110,7 @@ export interface WorkspaceFrameProps {
   children?: ReactNode;
 }
 
-export function WorkspaceFrame({
+export function WorkspaceFrame<T extends string = WorkspaceTab>({
   header,
   banner,
   embedded,
@@ -107,13 +123,20 @@ export function WorkspaceFrame({
   onTabChange,
   parameters,
   results,
+  paneTabs,
+  paneLabel = 'Parameters',
+  paneIcon,
   resultsBadge,
   paneBadgeCount = 0,
   statStrip,
   dockedSummary,
   dockedAction,
   children,
-}: WorkspaceFrameProps) {
+}: WorkspaceFrameProps<T>) {
+  const tabs: readonly WorkspacePaneTab<T>[] = paneTabs ?? [
+    { id: 'parameters' as T, label: 'Parameters', content: parameters },
+    { id: 'results' as T, label: <>Results{resultsBadge}</>, content: results },
+  ];
   const change = useRef(onPaneOpenChange);
   change.current = onPaneOpenChange;
   useEffect(() => {
@@ -139,10 +162,10 @@ export function WorkspaceFrame({
             onClick={() => onPaneOpenChange(true)}
             className="absolute right-3.5 top-1/2 -translate-y-1/2 z-20 inline-flex items-center gap-1.5 bg-card border border-border rounded-full px-3.5 py-2 shadow-raised hover:bg-muted/60 transition-colors"
             data-testid="reopen-params-chip"
-            title="Show parameters"
+            title={`Show ${paneLabel.toLowerCase()}`}
           >
-            <Pencil className="w-3 h-3 text-foreground" />
-            <span className="text-xs font-medium text-foreground">Parameters</span>
+            {paneIcon ?? <Pencil className="w-3 h-3 text-foreground" />}
+            <span className="text-xs font-medium text-foreground">{paneLabel}</span>
             {paneBadgeCount > 0 && (
               <span className="text-[9px] font-semibold text-assumed bg-assumed-bg rounded-full px-1.5 py-px font-mono" data-testid="params-assumed-badge">
                 {paneBadgeCount}
@@ -184,43 +207,45 @@ export function WorkspaceFrame({
       <div className="flex-1 flex flex-col min-h-0 bg-card border-l border-border/50 overflow-hidden">
         {/* The tabs and the handle that hides the pane */}
         <div className="shrink-0 flex items-center gap-1.5 px-3 py-2.5 border-b border-border/50">
-          <span className="inline-flex bg-muted rounded-control p-0.5 flex-1">
-            {(['parameters', 'results'] as const).map((id) => (
-              <button
-                key={id}
-                onClick={() => onTabChange(id)}
-                data-testid={`right-tab-${id}`}
-                aria-pressed={tab === id}
-                className={cn(
-                  'flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-medium py-1.5 rounded-tight transition-colors',
-                  tab === id
-                    ? 'text-foreground bg-card shadow-hairline'
-                    : 'text-muted-foreground hover:text-foreground',
-                )}
-              >
-                {id === 'parameters' ? 'Parameters' : 'Results'}
-                {id === 'results' && resultsBadge}
-              </button>
-            ))}
-          </span>
+          {tabs.length > 1 ? (
+            <span className="inline-flex bg-muted rounded-control p-0.5 flex-1">
+              {tabs.map(({ id, label }) => (
+                <button
+                  key={id}
+                  onClick={() => onTabChange(id)}
+                  data-testid={`right-tab-${id}`}
+                  aria-pressed={tab === id}
+                  className={cn(
+                    'flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-medium py-1.5 rounded-tight transition-colors',
+                    tab === id
+                      ? 'text-foreground bg-card shadow-hairline'
+                      : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  {label}
+                </button>
+              ))}
+            </span>
+          ) : (
+            <span className="flex-1 px-1 text-xs font-semibold text-foreground">{tabs[0]?.label}</span>
+          )}
           <button
             onClick={() => onPaneOpenChange(false)}
             className="p-1 rounded-tight text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors"
-            title="Hide parameters"
-            aria-label="Hide parameters"
+            title={`Hide ${paneLabel.toLowerCase()}`}
+            aria-label={`Hide ${paneLabel.toLowerCase()}`}
             data-testid="collapse-params"
           >
             <PanelRightClose className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Both tabs stay mounted: the form keeps its state across a switch */}
-        <div className="flex-1 min-h-0 flex-col" style={{ display: tab === 'parameters' ? 'flex' : 'none' }}>
-          {parameters}
-        </div>
-        <div className="flex-1 min-h-0 flex-col" style={{ display: tab === 'results' ? 'flex' : 'none' }}>
-          {results}
-        </div>
+        {/* Every tab stays mounted: a form keeps its state across a switch */}
+        {tabs.map(({ id, content }) => (
+          <div key={id} className="flex-1 min-h-0 flex-col" style={{ display: tab === id || tabs.length === 1 ? 'flex' : 'none' }}>
+            {content}
+          </div>
+        ))}
       </div>
     </div>
   );

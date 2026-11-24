@@ -1,6 +1,6 @@
 export {
   WorkspaceFrame, persistPaneOpen, readPaneOpen, useWorkspacePane,
-  type WorkspaceFrameProps, type WorkspaceTab,
+  type WorkspaceFrameProps, type WorkspacePaneTab, type WorkspaceTab,
 } from './frame';
 export { DrawingNotice, ViewSwitch, ZoneLegend, type ViewMode } from './viewer-chrome';
 export { DefaultPill, Dimensions, DimensionsY, Hatch, Label, NamePill, T, fmt, pointInDrawing } from './drawing-parts';
@@ -41,3 +41,17 @@ export { InfinityInput } from './infinity-input';
 export { LoadCard } from './load-card';
 export { ViewerToolbarPill, type ViewerDownloadItem, type ViewerPillView, type ViewerToolbarPillProps } from './viewer-toolbar-pill';
 export { useDismissOnOutsideClick } from './use-dismiss-on-outside-click';
+export { Button, buttonVariants, type ButtonSize, type ButtonVariant } from './button';
+export { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './card';
+export { Textarea } from './textarea';
+export { Progress } from './progress';
+export { Facts } from './facts';
+export { ToggleRow } from './toggle-row';
+export { ItemRow } from './item-row';
+export { FileDrop } from './file-drop';
+export { RecordRow } from './record-row';
+export { ViewerDialog, ViewerDropTarget, ViewerHint, ViewerLoading, ViewerState, ViewerStates } from './viewer-overlays';
+export { Notice } from './notice';
+export { PaneHeader } from './pane-header';
+export { ListSection } from './list-section';
+export { Toast } from './toast';
