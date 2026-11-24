@@ -32,10 +32,11 @@ export function ViewerState({ children, action, onAction }: { children: ReactNod
   );
 }
 
-/** Bottom right over the view: how to move around and the keys, quiet, never in the way of a click. */
+/** Top right over the view (the toolbar pill has the bottom): how to move around and the keys, quiet, never in the way
+ * of a click. Hidden on a narrow view. */
 export function ViewerHint({ children }: { children: ReactNode }) {
   return (
-    <div className="pointer-events-none absolute bottom-3 right-3 z-10 max-w-[60%] rounded-tight bg-card/85 px-2 py-1 text-right text-[11.5px] text-muted-foreground max-md:hidden">
+    <div className="pointer-events-none absolute right-3 top-3 z-10 max-w-[min(46%,420px)] rounded-tight bg-card/85 px-2 py-1 text-right text-[11.5px] text-muted-foreground max-lg:hidden">
       {children}
     </div>
   );
