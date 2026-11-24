@@ -51,3 +51,5 @@ export { ItemRow } from './item-row';
 export { FileDrop } from './file-drop';
 export { RecordRow } from './record-row';
 export { ViewerDialog, ViewerDropTarget, ViewerHint, ViewerLoading, ViewerState, ViewerStates } from './viewer-overlays';
+export { Notice } from './notice';
+export { PaneHeader } from './pane-header';
