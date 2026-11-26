@@ -26,8 +26,18 @@ export interface Element3dScene {
   /** Each product at its face position; `mesh` names its exact model in a catalogue the host serves. */
   products: { x: number; y: number; name: string; rotation_deg?: number; mesh: { base: string; id: string } | null; length_mm?: number; diameter_mm?: number }[];
   plate: { x0: number; x1: number; y0: number; y1: number; thickness_mm: number } | null;
-  /** Tension out of the face, a shear on the face towards `dir`. */
-  loads: { kind: 'tension' | 'shear'; at: [number, number]; dir?: [number, number]; text: string; assumed?: boolean }[];
+  /** Each product's concrete cone, seen through the concrete and cut where the element ends: its apex `depth_mm` into
+   *  the element, its reach `radius_mm` on the face, tinted by its zone. */
+  cones?: { x: number; y: number; depth_mm: number; radius_mm: number; zone: 'red' | 'amber' | 'green' }[];
+  /** What is fixed, drawn plainly as the engineer's part: an arm standing `reach_mm` off the plate over the face area
+   *  it covers (the loads then act at its end), or a prop from a product along `dir` (face frame, +z out of the face). */
+  fixture?: { kind: 'arm'; x0: number; x1: number; y0: number; y1: number; reach_mm: number }
+    | { kind: 'prop'; at: [number, number]; dir: [number, number, number]; length_mm: number } | null;
+  /** Tension out of the face, a shear on the face towards `dir`, a moment as its vector along `dir` (a double-headed
+   *  arrow on the face, the right-hand rule). */
+  loads: { kind: 'tension' | 'shear' | 'moment'; at: [number, number]; dir?: [number, number]; text: string; assumed?: boolean }[];
+  /** The axes the loads are stated against, drawn at `at` on the face: x and y along the face, z out of it, each named. */
+  axes?: { at: [number, number]; labels: [string, string, string] };
   dims: { from: [number, number]; to: [number, number]; text: string; assumed?: boolean }[];
   caption: string;
   /** 'flat' (default): the element lies with the face on top, the products pointing down into it, as an element is

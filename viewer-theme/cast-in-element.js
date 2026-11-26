@@ -42,6 +42,7 @@ document.documentElement.classList.toggle('dark', document.documentElement.datas
 
 const renderer = modelRenderer(new THREE.WebGLRenderer({ antialias: true, alpha: true }));
 renderer.domElement.className = 'gl';
+renderer.localClippingEnabled = true; // the cones are cut where the element ends
 renderer.domElement.setAttribute('aria-label', 'Interactive 3D view of the element and the products cast into it');
 document.body.prepend(renderer.domElement);
 const labels = new CSS2DRenderer();
@@ -81,6 +82,11 @@ function materials() {
     openLine: bindViewerMaterial(new THREE.LineDashedMaterial({ transparent: true, opacity: 0.9 }), { color: 'c-error-icon' }),
     cutLine: bindViewerMaterial(new THREE.LineDashedMaterial({ transparent: true, opacity: 0.7 }), { color: 'c-ink' }),
     pick: new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false, transparent: true, opacity: 0 }),
+    // A concrete cone is seen through the concrete it is in: tinted by its zone, never hiding what is behind it.
+    ...Object.fromEntries(Object.entries(ZONE_ROLE).map(([zone, role]) => [`cone_${zone}`, bindViewerMaterial(new THREE.MeshBasicMaterial({
+      transparent: true, opacity: zone === 'green' ? 0.16 : 0.24, depthWrite: false, depthTest: false, side: THREE.DoubleSide }), { color: role })])),
+    ...Object.fromEntries(Object.entries(ZONE_ROLE).map(([zone, role]) => [`rim_${zone}`, bindViewerMaterial(new THREE.LineBasicMaterial({
+      transparent: true, opacity: 0.85, depthTest: false }), { color: role })])),
   };
 }
 
@@ -205,6 +211,34 @@ function buildDynamic() {
     const p = S.plate, t = p.thickness_mm;
     box(p.x1 - p.x0, p.y1 - p.y0, t, W((p.x0 + p.x1) / 2, (p.y0 + p.y1) / 2, t / 2), mats.plate, dyn).renderOrder = 2;
   }
+  // what is fixed: an arm standing off the plate, or a prop along its force (plain shapes, the engineer's part)
+  const fx = S.fixture;
+  if (fx?.kind === 'arm') {
+    box(fx.x1 - fx.x0, fx.y1 - fx.y0, fx.reach_mm, W((fx.x0 + fx.x1) / 2, (fx.y0 + fx.y1) / 2, plateT() + fx.reach_mm / 2), mats.plate, dyn).renderOrder = 2;
+  } else if (fx?.kind === 'prop') {
+    const dir = new THREE.Vector3(...fx.dir).normalize(), r = Math.max(18, k() * 1.6);
+    const strut = outlined(new THREE.CylinderGeometry(r, r, fx.length_mm, 20), mats.plate, mats.edges);
+    strut.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+    strut.position.copy(W(fx.at[0], fx.at[1], 0)).add(dir.clone().multiplyScalar(fx.length_mm / 2 + r));
+    strut.renderOrder = 2; dyn.add(strut);
+  }
+  // each socket's concrete cone: its apex at the embedment, its reach on the face, cut where the element ends
+  if (S.cones?.length) {
+    // Kept inside the element: the face frame's four sides as world planes (W puts x about the middle, y from y0).
+    frame.updateMatrixWorld(true);
+    const { x0, x1, y0, y1 } = E(), mid = cx();
+    const planes = [[1, 0, mid - x0], [-1, 0, x1 - mid], [0, 1, 0], [0, -1, y1 - y0]]
+      .map(([nx, ny, d]) => new THREE.Plane(new THREE.Vector3(nx, ny, 0), d).applyMatrix4(frame.matrixWorld));
+    for (const zone of Object.keys(ZONE_ROLE)) { mats[`cone_${zone}`].clippingPlanes = planes; mats[`rim_${zone}`].clippingPlanes = planes; }
+    for (const c of S.cones) {
+      const m = new THREE.Mesh(new THREE.ConeGeometry(c.radius_mm, c.depth_mm, 48, 1, true), mats[`cone_${c.zone}`]);
+      m.rotation.x = -Math.PI / 2; m.position.copy(W(c.x, c.y, -c.depth_mm / 2)); m.renderOrder = 4; dyn.add(m);
+      const rim = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(Array.from({ length: 64 }, (_, i) => {
+        const a = i / 64 * Math.PI * 2; return W(c.x + Math.cos(a) * c.radius_mm, c.y + Math.sin(a) * c.radius_mm, 1);
+      })), mats[`rim_${c.zone}`]);
+      rim.renderOrder = 4; dyn.add(rim);
+    }
+  }
   // the products: the exact model, and its embedded length drawn through the concrete
   S.products.forEach((p, i) => {
     const at = W(p.x, p.y, 0);
@@ -233,12 +267,30 @@ function buildDynamic() {
   // the loads: tension out of the face, a shear on the face towards an edge
   for (const load of S.loads) {
     const material = load.assumed ? mats.assumed : mats.ink;
-    const from = W(load.at[0], load.at[1], plateT() + R * 1.2);
+    // An arm's load is drawn where it is applied, at the arm's end.
+    const from = W(load.at[0], load.at[1], plateT() + (fx?.kind === 'arm' ? fx.reach_mm : 0) + R * 1.2);
     let tip;
+    if (load.kind === 'moment') {
+      // A moment as its vector: a double-headed arrow along its axis, lifted off the face so it clears the shear.
+      const v = new THREE.Vector3(load.dir[0], load.dir[1], 0), base = from.clone().add(new THREE.Vector3(0, 0, R * 5)).sub(v.clone().multiplyScalar(R * 6));
+      arrow(base, v, R * 12, material);
+      tip = arrow(base.clone().add(v.clone().multiplyScalar(R * 1.4)), v, R * 12, material);
+      tag(`${esc(load.text)}`, tip.clone().add(v.clone().multiplyScalar(R * 3)).add(new THREE.Vector3(0, 0, R * 2)), 'tag load');
+      continue;
+    }
     if (load.kind === 'tension') tip = arrow(from.clone().add(new THREE.Vector3(0, 0, R * 2)), new THREE.Vector3(0, 0, 1), R * 18, material);
     else tip = arrow(from.clone().add(new THREE.Vector3(load.dir[0], load.dir[1], 0).multiplyScalar(R * 3)), new THREE.Vector3(load.dir[0], load.dir[1], 0), R * 12, material);
     tag(`${esc(load.text)}${load.assumed ? `<span class="mark">${esc(S.words.assumed)}</span>` : ''}`,
       tip.clone().add(load.kind === 'tension' ? new THREE.Vector3(R * 5, R * 5, R * 2) : new THREE.Vector3(load.dir[0] * R * 4, load.dir[1] * R * 4 - R * 2, 0)), 'tag load');
+  }
+  // the axes the loads are stated against, at the element's corner: x and y along the face, z out of it
+  if (S.axes) {
+    const o = W(S.axes.at[0], S.axes.at[1], 1).add(new THREE.Vector3(-R * 3, -R * 3, 0)), L = R * 9;
+    [[1, 0, 0], [0, 1, 0], [0, 0, 1]].forEach((d, i) => {
+      const v = new THREE.Vector3(...d);
+      const end = arrow(o, v, L, mats.ink);
+      tag(`<b>${esc(S.axes.labels[i])}</b>`, end.clone().add(v.clone().multiplyScalar(R * 2)), 'tag axis');
+    });
   }
   // the dimensions on the face
   for (const d of S.dims) {
