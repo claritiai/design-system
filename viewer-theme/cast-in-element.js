@@ -84,7 +84,7 @@ function materials() {
     pick: new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false, transparent: true, opacity: 0 }),
     // A concrete cone is seen through the concrete it is in: tinted by its zone, never hiding what is behind it.
     ...Object.fromEntries(Object.entries(ZONE_ROLE).map(([zone, role]) => [`cone_${zone}`, bindViewerMaterial(new THREE.MeshBasicMaterial({
-      transparent: true, opacity: zone === 'green' ? 0.16 : 0.24, depthWrite: false, depthTest: false, side: THREE.DoubleSide }), { color: role })])),
+      transparent: true, opacity: zone === 'green' ? 0.24 : 0.32, depthWrite: false, depthTest: false, side: THREE.DoubleSide }), { color: role })])),
     ...Object.fromEntries(Object.entries(ZONE_ROLE).map(([zone, role]) => [`rim_${zone}`, bindViewerMaterial(new THREE.LineBasicMaterial({
       transparent: true, opacity: 0.85, depthTest: false }), { color: role })])),
   };
@@ -285,7 +285,7 @@ function buildDynamic() {
   }
   // the axes the loads are stated against, at the element's corner: x and y along the face, z out of it
   if (S.axes) {
-    const o = W(S.axes.at[0], S.axes.at[1], 1).add(new THREE.Vector3(-R * 3, -R * 3, 0)), L = R * 9;
+    const o = W(S.axes.at[0], S.axes.at[1], 1).add(new THREE.Vector3(R * 3, -R * 3, 0)), L = R * 9;
     [[1, 0, 0], [0, 1, 0], [0, 0, 1]].forEach((d, i) => {
       const v = new THREE.Vector3(...d);
       const end = arrow(o, v, L, mats.ink);
